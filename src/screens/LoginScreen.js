@@ -14,9 +14,7 @@ import BrandLogo from "../components/atoms/BrandLogo";
 import HeroBackground from "../components/atoms/HeroBackground";
 import IconInput from "../components/atoms/IconInput";
 import Button from "../components/atoms/Button";
-import Divider from "../components/atoms/Divider";
 import PageDots from "../components/atoms/PageDots";
-import GoogleButton from "../components/molecules/GoogleButton";
 import { useAuthStore } from "../store/useAuthStore";
 import { useHorizontalSwipe } from "../utils/useHorizontalSwipe";
 
@@ -40,9 +38,6 @@ export default function LoginScreen({ navigation }) {
       setLoading(false);
     }
   };
-
-  const notImplemented = () =>
-    dialog.alert("El inicio con Google estará disponible pronto.", { title: "Próximamente" });
 
   const goToRegister = () => navigation.navigate("Register");
 
@@ -90,7 +85,7 @@ export default function LoginScreen({ navigation }) {
 
           <View className="flex-row items-center justify-between mt-4 mb-1.5 px-1">
             <Typography variant="label-caps">Contraseña</Typography>
-            <TouchableOpacity onPress={notImplemented} hitSlop={8}>
+            <TouchableOpacity onPress={() => dialog.alert("Recuperación de contraseña próximamente.", { title: "Próximamente" })} hitSlop={8}>
               <Typography variant="label-caps" className="text-primary">
                 ¿Olvidaste la clave?
               </Typography>
@@ -111,10 +106,6 @@ export default function LoginScreen({ navigation }) {
             loading={loading}
             onPress={handleLogin}
           />
-
-          <Divider label="o continuar con" />
-
-          <GoogleButton onPress={notImplemented} />
 
           <TouchableOpacity className="mt-6 items-center" onPress={goToRegister}>
             <Typography variant="body-sm">

@@ -1,6 +1,9 @@
-// Configuración central. Cambia aquí la IP cuando cambies de red.
-// NO uses "localhost" en dispositivos/emuladores: usa la IP de la máquina.
+// Configuración central. Por defecto apunta al backend en Vercel; se puede
+// sobreescribir con la variable EXPO_PUBLIC_API_BASE_URL (p. ej. para local).
 export const ENV = {
-  API_BASE_URL: "http://192.168.1.8:3000/api",
-  REQUEST_TIMEOUT: 15000,
+  API_BASE_URL:
+    process.env.EXPO_PUBLIC_API_BASE_URL ||
+    "https://backend-polla-v2.vercel.app/api",
+  // 30s: el primer request puede tardar por el cold start de Vercel + Neon.
+  REQUEST_TIMEOUT: 30000,
 };

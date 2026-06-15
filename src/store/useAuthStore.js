@@ -40,6 +40,13 @@ export const useAuthStore = create((set) => ({
     set({ token, user });
   },
 
+  loginWithGoogle: async (idToken) => {
+    const data = await AuthService.google(idToken);
+    await persistSession(data.token, data.user);
+    set({ token: data.token, user: data.user });
+    return data;
+  },
+
   login: async (email, password) => {
     const data = await AuthService.login(email, password);
     await persistSession(data.token, data.user);

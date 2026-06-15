@@ -13,8 +13,6 @@ import Screen from "../components/atoms/Screen";
 import Typography from "../components/atoms/Typography";
 import IconInput from "../components/atoms/IconInput";
 import Button from "../components/atoms/Button";
-import Divider from "../components/atoms/Divider";
-import GoogleButton from "../components/molecules/GoogleButton";
 import SuccessOverlay from "../components/molecules/SuccessOverlay";
 import { AuthService } from "../api/services/authService";
 import { useAuthStore } from "../store/useAuthStore";
@@ -56,9 +54,6 @@ export default function RegisterScreen({ navigation }) {
   const enterApp = () => {
     if (session) applySession(session.token, session.user);
   };
-
-  const notImplemented = () =>
-    dialog.alert("El registro con Google estará disponible pronto.", { title: "Próximamente" });
 
   // Deslizar de izquierda a derecha → volver al login.
   const swipe = useHorizontalSwipe({ onSwipeRight: () => navigation.goBack() });
@@ -140,10 +135,6 @@ export default function RegisterScreen({ navigation }) {
             loading={loading}
             onPress={handleRegister}
           />
-
-          <Divider label="o regístrate con" />
-
-          <GoogleButton onPress={notImplemented} />
 
           <TouchableOpacity
             className="mt-6 items-center"
