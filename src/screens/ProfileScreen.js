@@ -4,6 +4,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { Camera } from "lucide-react-native";
 import { compressToBase64 } from "../utils/image";
+import { dialog } from "../store/useDialog";
 import {
   Bell,
   Settings,
@@ -47,7 +48,7 @@ export default function ProfileScreen({ navigation }) {
   const pickAvatar = async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert("Permiso requerido", "Necesitamos acceso a tus fotos.");
+      dialog.alert("Necesitamos acceso a tus fotos.", { title: "Permiso requerido" });
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -67,20 +68,23 @@ export default function ProfileScreen({ navigation }) {
       });
       await updateProfile({ avatarUrl: uri });
     } catch (e) {
-      Alert.alert("Error", e?.response?.data?.error || "No se pudo subir la imagen.");
+      dialog.alert(e?.response?.data?.error || "No se pudo subir la imagen.", { title: "Error", tone: "danger" });
     } finally {
       setUploading(false);
     }
   };
 
   const soon = () =>
-    Alert.alert("Próximamente", "Esta sección estará disponible pronto.");
+    dialog.alert("Esta sección estará disponible pronto.", { title: "Próximamente" });
 
-  const confirmLogout = () =>
-    Alert.alert("Cerrar sesión", "¿Seguro que quieres salir?", [
-      { text: "Cancelar", style: "cancel" },
-      { text: "Salir", style: "destructive", onPress: logout },
-    ]);
+  const confirmLogout = async () => {
+    const ok = await dialog.confirm("¿Seguro que quieres cerrar sesión?", {
+      title: "Cerrar sesión",
+      confirmText: "Salir",
+      tone: "danger",
+    });
+    if (ok) logout();
+  };
 
   return (
     <Screen padded={false} edges={["top", "bottom"]}>

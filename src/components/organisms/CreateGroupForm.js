@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { dialog } from "../../store/useDialog";
 import { View, Alert } from "react-native";
 import Card from "../atoms/Card";
 import Typography from "../atoms/Typography";
@@ -17,7 +18,7 @@ export default function CreateGroupForm({ onCreate }) {
       await onCreate(name.trim());
       setName("");
     } catch (e) {
-      Alert.alert("Error", e?.response?.data?.error || "No se pudo crear.");
+      dialog.alert(e?.response?.data?.error || "No se pudo crear.", { title: "Error", tone: "danger" });
     } finally {
       setBusy(false);
     }

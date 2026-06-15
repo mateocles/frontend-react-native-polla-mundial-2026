@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { dialog } from "../../store/useDialog";
 import { View, Alert } from "react-native";
 import Input from "../atoms/Input";
 import Button from "../atoms/Button";
@@ -16,14 +17,14 @@ export default function AuthForm({ fields, submitLabel, onSubmit }) {
   const handleSubmit = async () => {
     const missing = fields.some((f) => !values[f.key]);
     if (missing) {
-      Alert.alert("Faltan datos", "Completa todos los campos.");
+      dialog.alert("Completa todos los campos.", { title: "Faltan datos" });
       return;
     }
     setLoading(true);
     try {
       await onSubmit(values);
     } catch (e) {
-      Alert.alert("Error", e?.response?.data?.error || "Ocurrió un error.");
+      dialog.alert(e?.response?.data?.error || "Ocurrió un error.", { title: "Error", tone: "danger" });
     } finally {
       setLoading(false);
     }

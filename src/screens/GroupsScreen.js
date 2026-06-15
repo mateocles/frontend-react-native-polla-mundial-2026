@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { dialog } from "../store/useDialog";
 import { View, ScrollView, TouchableOpacity, RefreshControl, Alert } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -31,7 +32,7 @@ export default function GroupsScreen({ navigation }) {
   useFocusEffect(
     useCallback(() => {
       fetchGroups().catch(() =>
-        Alert.alert("Error", "No se pudieron cargar los grupos.")
+        dialog.alert("No se pudieron cargar los grupos.", { title: "Error", tone: "danger" })
       );
     }, [fetchGroups])
   );

@@ -1,4 +1,5 @@
 import { View, TouchableOpacity, Alert } from "react-native";
+import { dialog } from "../../store/useDialog";
 import * as Clipboard from "expo-clipboard";
 import { Users, Copy, BarChart3 } from "lucide-react-native";
 import Typography from "../atoms/Typography";
@@ -10,7 +11,7 @@ import { colors } from "../../theme/colors";
 export default function GroupCard({ group, onOpenRanking }) {
   const copyCode = async () => {
     await Clipboard.setStringAsync(group.inviteCode);
-    Alert.alert("Copiado", `Código ${group.inviteCode} copiado al portapapeles.`);
+    dialog.alert(`Código ${group.inviteCode} copiado al portapapeles.`, { title: "Copiado", tone: "success" });
   };
 
   return (

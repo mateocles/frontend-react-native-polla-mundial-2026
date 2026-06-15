@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { dialog } from "../store/useDialog";
 import { View, FlatList, RefreshControl, TouchableOpacity, Alert } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -29,7 +30,7 @@ export default function MatchesScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchMatches().catch(() =>
-        Alert.alert("Error", "No se pudieron cargar los partidos.")
+        dialog.alert("No se pudieron cargar los partidos.", { title: "Error", tone: "danger" })
       );
     }, [fetchMatches])
   );

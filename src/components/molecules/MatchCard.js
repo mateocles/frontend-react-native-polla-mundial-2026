@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { dialog } from "../../store/useDialog";
 import { View, Alert } from "react-native";
 import { CalendarDays } from "lucide-react-native";
 import Card from "../atoms/Card";
@@ -48,15 +49,15 @@ export default function MatchCard({ match, onSubmit }) {
 
   const handleSave = async () => {
     if (home === "" || away === "") {
-      Alert.alert("Faltan datos", "Ingresa ambos marcadores.");
+      dialog.alert("Ingresa ambos marcadores.", { title: "Faltan datos" });
       return;
     }
     setSaving(true);
     try {
       await onSubmit(match.id, parseInt(home, 10), parseInt(away, 10));
-      Alert.alert("Guardado", "Tu predicción fue registrada.");
+      dialog.alert("Tu predicción fue registrada.", { title: "Guardado", tone: "success" });
     } catch (e) {
-      Alert.alert("Error", e?.response?.data?.error || "No se pudo guardar.");
+      dialog.alert(e?.response?.data?.error || "No se pudo guardar.", { title: "Error", tone: "danger" });
     } finally {
       setSaving(false);
     }

@@ -11,6 +11,7 @@ import {
 } from '@expo-google-fonts/inter'
 import RootNavigator from './src/navigation/RootNavigator'
 import Loader from './src/components/atoms/Loader'
+import DialogHost from './src/components/organisms/DialogHost'
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -25,6 +26,7 @@ export default function App() {
     <SafeAreaProvider>
       <StatusBar style='light' />
       {fontsLoaded ? <RootNavigator /> : <Loader fullscreen />}
+      <DialogHost />
     </SafeAreaProvider>
   )
 }

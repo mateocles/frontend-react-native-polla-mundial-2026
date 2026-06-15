@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { dialog } from "../store/useDialog";
 import {
   View,
   ScrollView,
@@ -32,11 +33,11 @@ export default function RegisterScreen({ navigation }) {
 
   const handleRegister = async () => {
     if (!name || !email || !password || !confirm) {
-      Alert.alert("Faltan datos", "Completa todos los campos.");
+      dialog.alert("Completa todos los campos.", { title: "Faltan datos" });
       return;
     }
     if (password !== confirm) {
-      Alert.alert("Contraseña", "Las contraseñas no coinciden.");
+      dialog.alert("Las contraseñas no coinciden.", { title: "Contraseña" });
       return;
     }
     setLoading(true);
@@ -47,7 +48,7 @@ export default function RegisterScreen({ navigation }) {
       setSession(data);
       setSuccess(true);
     } catch (e) {
-      Alert.alert("Error", e?.response?.data?.error || "No se pudo crear la cuenta.");
+      dialog.alert(e?.response?.data?.error || "No se pudo crear la cuenta.", { title: "Error", tone: "danger" });
       setLoading(false);
     }
   };
@@ -57,7 +58,7 @@ export default function RegisterScreen({ navigation }) {
   };
 
   const notImplemented = () =>
-    Alert.alert("Próximamente", "El registro con Google estará disponible pronto.");
+    dialog.alert("El registro con Google estará disponible pronto.", { title: "Próximamente" });
 
   // Deslizar de izquierda a derecha → volver al login.
   const swipe = useHorizontalSwipe({ onSwipeRight: () => navigation.goBack() });

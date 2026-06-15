@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { dialog } from "../../store/useDialog";
 import { View, Alert } from "react-native";
 import Card from "../atoms/Card";
 import Typography from "../atoms/Typography";
@@ -16,9 +17,9 @@ export default function JoinGroupForm({ onJoin }) {
     try {
       await onJoin(code.trim());
       setCode("");
-      Alert.alert("Listo", "Te uniste al grupo.");
+      dialog.alert("Te uniste al grupo.", { title: "Listo", tone: "success" });
     } catch (e) {
-      Alert.alert("Error", e?.response?.data?.error || "Código inválido.");
+      dialog.alert(e?.response?.data?.error || "Código inválido.", { title: "Error", tone: "danger" });
     } finally {
       setBusy(false);
     }

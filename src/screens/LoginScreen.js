@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { dialog } from "../store/useDialog";
 import {
   View,
   TouchableOpacity,
@@ -27,21 +28,21 @@ export default function LoginScreen({ navigation }) {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert("Faltan datos", "Ingresa tu correo y contraseña.");
+      dialog.alert("Ingresa tu correo y contraseña.", { title: "Faltan datos" });
       return;
     }
     setLoading(true);
     try {
       await login(email.trim(), password);
     } catch (e) {
-      Alert.alert("Error", e?.response?.data?.error || "No se pudo iniciar sesión.");
+      dialog.alert(e?.response?.data?.error || "No se pudo iniciar sesión.", { title: "Error", tone: "danger" });
     } finally {
       setLoading(false);
     }
   };
 
   const notImplemented = () =>
-    Alert.alert("Próximamente", "El inicio con Google estará disponible pronto.");
+    dialog.alert("El inicio con Google estará disponible pronto.", { title: "Próximamente" });
 
   const goToRegister = () => navigation.navigate("Register");
 

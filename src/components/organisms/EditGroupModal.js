@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { dialog } from "../../store/useDialog";
 import { Modal, View, Image, TouchableOpacity, Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { ImagePlus, X } from "lucide-react-native";
@@ -18,7 +19,7 @@ export default function EditGroupModal({ visible, group, onClose, onSave }) {
   const pickImage = async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert("Permiso requerido", "Necesitamos acceso a tus fotos.");
+      dialog.alert("Necesitamos acceso a tus fotos.", { title: "Permiso requerido" });
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -39,7 +40,7 @@ export default function EditGroupModal({ visible, group, onClose, onSave }) {
 
   const handleSave = async () => {
     if (!name.trim()) {
-      Alert.alert("Nombre", "El nombre no puede estar vacío.");
+      dialog.alert("El nombre no puede estar vacío.", { title: "Nombre" });
       return;
     }
     setSaving(true);
@@ -47,7 +48,7 @@ export default function EditGroupModal({ visible, group, onClose, onSave }) {
       await onSave({ name: name.trim(), imageUrl: image });
       onClose();
     } catch (e) {
-      Alert.alert("Error", e?.response?.data?.error || "No se pudo guardar.");
+      dialog.alert(e?.response?.data?.error || "No se pudo guardar.", { title: "Error", tone: "danger" });
     } finally {
       setSaving(false);
     }

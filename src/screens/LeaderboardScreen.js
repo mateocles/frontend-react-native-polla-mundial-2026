@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { dialog } from "../store/useDialog";
 import { View, FlatList, Image, TouchableOpacity, RefreshControl, Alert } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -46,7 +47,7 @@ export default function LeaderboardScreen({ route, navigation }) {
       const data = await PredictionService.getLeaderboard(group.id);
       setRows(data);
     } catch (e) {
-      Alert.alert("Error", "No se pudo cargar la tabla.");
+      dialog.alert("No se pudo cargar la tabla.", { title: "Error", tone: "danger" });
     } finally {
       setLoading(false);
     }
@@ -83,7 +84,7 @@ export default function LeaderboardScreen({ route, navigation }) {
   const copyCode = async () => {
     if (!group.inviteCode) return;
     await Clipboard.setStringAsync(group.inviteCode);
-    Alert.alert("Copiado", `Código ${group.inviteCode} copiado.`);
+    dialog.alert(`Código ${group.inviteCode} copiado.`, { title: "Copiado", tone: "success" });
   };
 
   const handleSaveGroup = async (payload) => {
