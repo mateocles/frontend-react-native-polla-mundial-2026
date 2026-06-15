@@ -147,11 +147,6 @@ export default function ProfileScreen({ navigation }) {
 
         {/* Menú */}
         <MenuRow
-          icon={Camera}
-          label={uploading ? "Subiendo foto..." : "Cambiar foto de perfil"}
-          onPress={pickAvatar}
-        />
-        <MenuRow
           icon={ListChecks}
           label="My Predictions"
           onPress={() => navigation.navigate("Matches")}
