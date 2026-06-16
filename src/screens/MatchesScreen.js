@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { dialog } from "../store/useDialog";
 import { View, FlatList, RefreshControl, TouchableOpacity, Alert } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
@@ -12,6 +12,7 @@ import EmptyState from "../components/atoms/EmptyState";
 import SegmentedFilter from "../components/molecules/SegmentedFilter";
 import OpenMatchCard from "../components/molecules/OpenMatchCard";
 import ClosedMatchCard from "../components/molecules/ClosedMatchCard";
+import LiveMatchCard from "../components/molecules/LiveMatchCard";
 import { useMatchesStore } from "../store/useMatchesStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { isMatchClosed, formatMatchShort } from "../utils/match";
@@ -35,16 +36,26 @@ export default function MatchesScreen() {
     }, [fetchMatches])
   );
 
-  const { open, closed } = useMemo(() => {
-    const openList = matches.filter((m) => !isMatchClosed(m));
+  const { live, open, closed } = useMemo(() => {
+    const liveList = matches.filter((m) => m.status === "live");
+    const openList = matches.filter((m) => m.status === "notstarted" && !isMatchClosed(m));
     const closedList = matches
-      .filter((m) => isMatchClosed(m))
+      .filter((m) => m.status === "finished")
       .sort((a, b) => new Date(b.matchDate) - new Date(a.matchDate));
-    return { open: openList, closed: closedList };
+    return { live: liveList, open: openList, closed: closedList };
   }, [matches]);
 
   const list = tab === "open" ? open : closed;
   const nextDate = open[0]?.matchDate;
+
+  // Auto-refresh cada 30s mientras haya partidos en vivo.
+  useEffect(() => {
+    if (live.length === 0) return;
+    const id = setInterval(() => {
+      fetchMatches().catch(() => {});
+    }, 30000);
+    return () => clearInterval(id);
+  }, [live.length, fetchMatches]);
 
   if (loading && matches.length === 0) {
     return (
@@ -104,6 +115,21 @@ export default function MatchesScreen() {
                 </Typography>
               </View>
             </View>
+
+            {/* En vivo */}
+            {live.length > 0 && (
+              <View className="mb-4">
+                <View className="flex-row items-center mb-3">
+                  <View className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: colors.tertiary }} />
+                  <Typography variant="label-caps" style={{ color: colors.tertiary }}>
+                    En vivo ahora
+                  </Typography>
+                </View>
+                {live.map((m) => (
+                  <LiveMatchCard key={m.id} match={m} />
+                ))}
+              </View>
+            )}
 
             {/* Tabs */}
             <View className="mt-1 mb-4">
