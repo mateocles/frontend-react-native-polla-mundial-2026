@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { View, TouchableOpacity } from "react-native";
 import { Crown, Medal } from "lucide-react-native";
 import Avatar from "../atoms/Avatar";
 import Typography from "../atoms/Typography";
@@ -10,11 +10,16 @@ const MEDAL = {
   3: { ring: "#b45309", barH: 80, bar: "bg-surface-container-high", label: "text-on-surface", rankClass: "text-tertiary" },
 };
 
-function PodiumPlace({ place, row }) {
+function PodiumPlace({ place, row, onSelect }) {
   const cfg = MEDAL[place];
   if (!row) return <View className="flex-1 max-w-[110px]" />;
   return (
-    <View className="flex-1 items-center" style={{ maxWidth: place === 1 ? 120 : 100 }}>
+    <TouchableOpacity
+      className="flex-1 items-center"
+      style={{ maxWidth: place === 1 ? 120 : 100 }}
+      activeOpacity={0.85}
+      onPress={() => onSelect?.(row)}
+    >
       <View className="mb-2 items-center">
         {place === 1 ? (
           <Crown color="#facc15" size={26} fill="#facc15" style={{ marginBottom: 2 }} />
@@ -43,18 +48,19 @@ function PodiumPlace({ place, row }) {
           #{place}
         </Typography>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
-// Podio del ranking (top 3). `rows` debe venir ordenado por puntos desc.
-export default function Podium({ rows }) {
+// Podio del ranking (top 3). `rows` ordenado por puntos desc.
+// `onSelect(row)` se dispara al tocar un puesto.
+export default function Podium({ rows, onSelect }) {
   const [first, second, third] = rows;
   return (
     <View className="flex-row items-end justify-center gap-2 pt-6">
-      <PodiumPlace place={2} row={second} />
-      <PodiumPlace place={1} row={first} />
-      <PodiumPlace place={3} row={third} />
+      <PodiumPlace place={2} row={second} onSelect={onSelect} />
+      <PodiumPlace place={1} row={first} onSelect={onSelect} />
+      <PodiumPlace place={3} row={third} onSelect={onSelect} />
     </View>
   );
 }

@@ -155,7 +155,7 @@ export default function LeaderboardScreen({ route, navigation }) {
       {tab === "ranking" ? (
         <View className="mt-6">
           <Typography variant="headline-lg">Ranking de Jugadores</Typography>
-          {rows.length ? <Podium rows={podium} /> : null}
+          {rows.length ? <Podium rows={podium} onSelect={setViewUser} /> : null}
           <View className="h-4" />
         </View>
       ) : (

@@ -51,7 +51,8 @@ export default function UserPredictionsModal({ user, groupId, onClose }) {
           <FlatList
             data={items}
             keyExtractor={(m) => m.id}
-            showsVerticalScrollIndicator={false}
+            showsVerticalScrollIndicator
+            style={{ maxHeight: 360 }}
             ListEmptyComponent={
               <EmptyState message={data ? "Sin pronósticos en partidos cerrados." : "Cargando…"} />
             }
