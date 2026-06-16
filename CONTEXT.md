@@ -1,51 +1,62 @@
 # 🧠 Contexto — `frontend_polla` (App móvil)
 
+> Documento para que otra IA/dev continúe. Refleja el estado actual.
+
 ## ¿Qué es?
-La **aplicación móvil** (iOS/Android) de la Polla Mundialista, hecha con **Expo / React Native**. Es el cliente principal: el usuario se registra, crea/se une a grupos, predice marcadores **dentro de un grupo** y compite en la tabla de posiciones. Consume el [`backend_polla`](../backend_polla).
+App móvil (**Expo SDK 54 / React Native**) de la Polla Mundialista. El usuario se registra, crea/se une a grupos (públicos o privados), predice marcadores **dentro de un grupo** y compite en el ranking. Consume el [`backend_polla`](../backend_polla) (por defecto el de producción en Vercel).
 
 ## Stack
-- **Expo SDK 54 + React Native** (se bajó de SDK 56 porque Expo Go aún no lo soportaba).
-- **NativeWind v4 + Tailwind v3** — estilos.
-- **Zustand** — estado global (sesión, grupos, partidos).
-- **React Navigation** — Stack (Auth) + Bottom Tabs (App).
-- **Axios** + **AsyncStorage** (token/sesión).
-- **Inter** (`@expo-google-fonts`), **Lucide** (iconos), **expo-blur**, **expo-image-picker/manipulator**, **expo-clipboard**.
+- **Expo SDK 54 + React Native**, **NativeWind v4 + Tailwind v3**.
+- **Zustand** (estado global), **React Navigation** (Auth stack + Bottom tabs).
+- **Axios** + **AsyncStorage**. **Inter** (fuente), **Lucide** (iconos).
+- expo-blur, expo-image-picker, expo-image-manipulator, expo-clipboard, expo-linear-gradient, expo-auth-session (Google).
 
-## Design System: "Pitch Kinetic Dark"
-Estética stadium-at-night: fondo azul medianoche `#0b1326`, acento **cian eléctrico `#00f2ff`**, glassmorphism y tipografía Inter. Tokens centralizados en [`src/theme/colors.js`](src/theme/colors.js) + [`tailwind.config.js`](tailwind.config.js).
+## Design System "Pitch Kinetic Dark"
+Fondo azul medianoche `#0b1326`, acento **cian eléctrico `#00f2ff`**, Inter, glassmorphism. Tokens en [`src/theme/colors.js`](src/theme/colors.js) + [`tailwind.config.js`](tailwind.config.js).
 
 ## Arquitectura (Clean Code + Atomic Design)
 ```
 src/
-├── api/            # axiosConfig (interceptor token) + services por dominio
-├── store/          # useAuthStore, useGroupsStore, useMatchesStore
+├── api/            # axiosConfig (interceptor token) + services (auth, group, prediction)
+├── store/          # useAuthStore, useGroupsStore, useMatchesStore, useDialog
 ├── components/
-│   ├── atoms/      # Button, Input, IconInput, Avatar, TeamBadge, Badge...
-│   ├── molecules/  # MatchCard(s), GroupCard, LeaderboardRow, Podium...
-│   └── organisms/  # AuthForm, CreateGroupForm, EditGroupModal...
-├── screens/        # Login, Register, Matches, Groups, Leaderboard(detalle), Profile
+│   ├── atoms/      # Button, IconInput, Avatar(uri), TeamBadge, Badge, Typography...
+│   ├── molecules/  # OpenMatchCard, ClosedMatchCard, PredictionMatchCard, Podium,
+│   │               # LeaderboardRow, GroupCard, SegmentedFilter, GoogleButton...
+│   └── organisms/  # AuthForm, CreateGroupForm, EditGroupModal, DialogHost,
+│                   # UserPredictionsModal, GoogleSignInButton...
+├── screens/        # Login, Register, Matches, Groups, Leaderboard(detalle grupo), Profile
 ├── navigation/     # RootNavigator, AuthStack, AppTabs, GroupsStack
 ├── config/ theme/ utils/
 ```
-**Regla de oro**: las pantallas no llaman a axios directo → usan `store` o `services`.
+Regla: las pantallas usan `store`/`services`, nunca axios directo.
 
-## Flujos clave
-- **Predicción**: solo desde el **detalle de grupo → Mis Pronósticos** (debes ser miembro). Se bloquea cuando el partido inicia (frontend + backend).
-- **Partidos** (tab): solo lectura — fixtures y resultados; finalizados con **drawer de goleadores**.
-- **Grupos**: tabs Mis Grupos / Acciones; el **admin (creador)** puede editar nombre e **imagen** (base64 comprimido).
-- **Perfil**: avatar editable (subida + compresión), stats derivadas de predicciones, logout.
+## Funcionalidades actuales
+- **Auth**: login/registro por correo. El endpoint Google existe pero **los botones de Google están ocultos** en Login/Register (se pueden reactivar con `GoogleSignInButton`; requiere client IDs nativos + dev build).
+- **Partidos** (solo lectura): tabs Próximos/Finalizados; finalizados con **drawer de goleadores**.
+- **Grupos**: tabs Mis Grupos / Acciones. Crear (**switch Público/Privado**), unirse por código, **explorar y unirse a grupos públicos**.
+- **Detalle de grupo** (`LeaderboardScreen`):
+  - Banner **editable solo admin** (imagen base64 comprimida).
+  - **Ranking**: podio + lista con **fotos** (avatar) y badge **Admin**; tocar un usuario abre **UserPredictionsModal** (sus pronósticos de partidos cerrados).
+  - **Mis Pronósticos**: predecir (bloqueado al iniciar el partido).
+- **Perfil**: avatar editable (subida + compresión base64), stats, logout.
+- **Diálogos bonitos**: `useDialog` + `DialogHost` (alert/confirm) — reemplazan los `Alert.alert` nativos.
 
-## Detalles importantes
-- Imágenes (grupo/avatar) → **base64** comprimido (`utils/image.js`, objetivo ~120–250 KB).
-- Banderas → API gratis **flagcdn.com** con fallback a iniciales.
-- Safe area para notch / Isla Dinámica (`Screen` con `edges`).
-- IP del backend configurable en [`src/config/env.js`](src/config/env.js) (en dispositivo usar IP de la máquina, no `localhost`).
+## Config / env
+- API y Google en [`.env`](.env): `EXPO_PUBLIC_API_BASE_URL`, `EXPO_PUBLIC_GOOGLE_WEB/IOS/ANDROID_CLIENT_ID`.
+- [`src/config/env.js`](src/config/env.js): default al backend de Vercel; timeout 30s (cold start). Para local: `EXPO_PUBLIC_API_BASE_URL=http://TU_IP:3000/api`.
+- Imágenes: base64 con compresión adaptativa ([`utils/image.js`](src/utils/image.js)).
+- Banderas: API gratis flagcdn.com con fallback a iniciales.
 
 ## Correr
 ```bash
 npm install
-npx expo start -c   # escanear QR con Expo Go (SDK 54)
+npx expo start -c    # Expo Go (SDK 54); -c limpia caché (necesario tras cambiar .env)
 ```
 
+## Pendientes / ideas
+- Reactivar Google con dev build + iOS/Android client IDs.
+- Mostrar foto en más lugares; notificaciones (campana es decorativa).
+
 ## Relación
-Cliente móvil del `backend_polla`. Comparte backend, lógica y diseño con la versión web [`frontend_polla_web`](../frontend_polla_web).
+Cliente móvil del `backend_polla`. Hermano de la web [`frontend_polla_web`](../frontend_polla_web) (misma lógica y diseño).
