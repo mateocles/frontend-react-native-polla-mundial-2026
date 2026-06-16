@@ -22,7 +22,7 @@ function PodiumPlace({ place, row }) {
           <Medal color={cfg.ring} size={18} style={{ marginBottom: 2 }} />
         )}
         <View style={{ borderWidth: place === 1 ? 3 : 2, borderColor: cfg.ring, borderRadius: 999 }}>
-          <Avatar name={row.name} size={place === 1 ? 72 : 56} />
+          <Avatar name={row.name} uri={row.avatarUrl} size={place === 1 ? 72 : 56} />
         </View>
       </View>
       <Typography

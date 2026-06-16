@@ -14,6 +14,7 @@ import Podium from "../components/molecules/Podium";
 import LeaderboardRow from "../components/molecules/LeaderboardRow";
 import PredictionMatchCard from "../components/molecules/PredictionMatchCard";
 import EditGroupModal from "../components/organisms/EditGroupModal";
+import UserPredictionsModal from "../components/organisms/UserPredictionsModal";
 import { PredictionService } from "../api/services/predictionService";
 import { useAuthStore } from "../store/useAuthStore";
 import { useMatchesStore } from "../store/useMatchesStore";
@@ -39,6 +40,7 @@ export default function LeaderboardScreen({ route, navigation }) {
   const [tab, setTab] = useState("ranking");
   const [predFilter, setPredFilter] = useState("upcoming");
   const [editVisible, setEditVisible] = useState(false);
+  const [viewUser, setViewUser] = useState(null);
 
   const isAdmin = currentUser?.id === group.ownerId;
 
@@ -220,13 +222,16 @@ export default function LeaderboardScreen({ route, navigation }) {
         }
         renderItem={({ item }) =>
           tab === "ranking" ? (
-            <LeaderboardRow
-              rank={item.rank}
-              name={item.name}
-              points={item.totalPoints}
-              isCurrentUser={item.userId === currentUser?.id}
-              isAdmin={item.userId === group.ownerId}
-            />
+            <TouchableOpacity activeOpacity={0.85} onPress={() => setViewUser(item)}>
+              <LeaderboardRow
+                rank={item.rank}
+                name={item.name}
+                points={item.totalPoints}
+                avatarUrl={item.avatarUrl}
+                isCurrentUser={item.userId === currentUser?.id}
+                isAdmin={item.userId === group.ownerId}
+              />
+            </TouchableOpacity>
           ) : (
             <PredictionMatchCard match={item} onSubmit={submitPrediction} />
           )
@@ -243,6 +248,12 @@ export default function LeaderboardScreen({ route, navigation }) {
         group={group}
         onClose={() => setEditVisible(false)}
         onSave={handleSaveGroup}
+      />
+
+      <UserPredictionsModal
+        user={viewUser}
+        groupId={group.id}
+        onClose={() => setViewUser(null)}
       />
     </Screen>
   );

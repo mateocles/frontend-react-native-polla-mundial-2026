@@ -15,10 +15,25 @@ export const useGroupsStore = create((set) => ({
     }
   },
 
-  createGroup: async (name) => {
-    await GroupService.create(name);
+  publicGroups: [],
+
+  createGroup: async (name, isPublic = false) => {
+    await GroupService.create(name, isPublic);
     const groups = await GroupService.list();
     set({ groups });
+  },
+
+  fetchPublicGroups: async () => {
+    set({ publicGroups: await GroupService.listPublic() });
+  },
+
+  joinPublicGroup: async (groupId) => {
+    await GroupService.joinPublic(groupId);
+    const [groups, publicGroups] = await Promise.all([
+      GroupService.list(),
+      GroupService.listPublic(),
+    ]);
+    set({ groups, publicGroups });
   },
 
   joinGroup: async (inviteCode) => {

@@ -4,7 +4,7 @@ import Typography from "../atoms/Typography";
 
 // Fila de la tabla de posiciones: rank + avatar + nombre + puntos.
 // Resalta al usuario actual.
-export default function LeaderboardRow({ rank, name, points, isCurrentUser, isAdmin }) {
+export default function LeaderboardRow({ rank, name, points, avatarUrl, isCurrentUser, isAdmin }) {
   return (
     <View
       className={`flex-row items-center p-4 rounded-xl mb-2 ${
@@ -23,7 +23,7 @@ export default function LeaderboardRow({ rank, name, points, isCurrentUser, isAd
         {rank}
       </Typography>
       <View className="mx-3">
-        <Avatar name={name} size={40} />
+        <Avatar name={name} uri={avatarUrl} size={40} />
       </View>
       <View className="flex-1 flex-row items-center">
         <Typography variant="body" className={isCurrentUser ? "text-primary font-bold" : ""} numberOfLines={1}>

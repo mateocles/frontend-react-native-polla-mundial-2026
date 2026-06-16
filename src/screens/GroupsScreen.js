@@ -24,7 +24,10 @@ const TABS = [
 ];
 
 export default function GroupsScreen({ navigation }) {
-  const { groups, loading, fetchGroups, createGroup, joinGroup } = useGroupsStore();
+  const {
+    groups, publicGroups, loading, fetchGroups, fetchPublicGroups,
+    createGroup, joinGroup, joinPublicGroup,
+  } = useGroupsStore();
   const user = useAuthStore((s) => s.user);
   const [tab, setTab] = useState("groups");
   const [activeForm, setActiveForm] = useState(null); // 'create' | 'join' | null
@@ -34,14 +37,15 @@ export default function GroupsScreen({ navigation }) {
       fetchGroups().catch(() =>
         dialog.alert("No se pudieron cargar los grupos.", { title: "Error", tone: "danger" })
       );
-    }, [fetchGroups])
+      fetchPublicGroups().catch(() => {});
+    }, [fetchGroups, fetchPublicGroups])
   );
 
   const goToRanking = (group) =>
     navigation.navigate("Leaderboard", { group });
 
-  const handleCreate = async (name) => {
-    await createGroup(name);
+  const handleCreate = async (name, isPublic) => {
+    await createGroup(name, isPublic);
     setActiveForm(null);
     setTab("groups");
   };
@@ -50,6 +54,15 @@ export default function GroupsScreen({ navigation }) {
     await joinGroup(code);
     setActiveForm(null);
     setTab("groups");
+  };
+
+  const handleJoinPublic = async (g) => {
+    try {
+      await joinPublicGroup(g.id);
+      setTab("groups");
+    } catch (e) {
+      dialog.alert(e?.response?.data?.error || "No se pudo unir.", { title: "Error", tone: "danger" });
+    }
   };
 
   return (
@@ -124,6 +137,40 @@ export default function GroupsScreen({ navigation }) {
               onPress={() => setActiveForm(activeForm === "join" ? null : "join")}
             />
             {activeForm === "join" ? <JoinGroupForm onJoin={handleJoin} /> : null}
+
+            {/* Grupos públicos */}
+            <Typography variant="label-caps" className="mt-6 mb-3">
+              Grupos públicos
+            </Typography>
+            {publicGroups.length === 0 ? (
+              <Typography variant="body-sm" className="mb-2">
+                No hay grupos públicos por ahora.
+              </Typography>
+            ) : (
+              publicGroups.map((g) => (
+                <View
+                  key={g.id}
+                  className="flex-row items-center rounded-xl p-4 mb-3"
+                  style={{ backgroundColor: "rgba(30,41,59,0.7)", borderWidth: 1, borderColor: "rgba(255,255,255,0.05)" }}
+                >
+                  <Avatar name={g.name} uri={g.imageUrl} size={40} />
+                  <View className="flex-1 ml-3">
+                    <Typography variant="body" className="font-bold" numberOfLines={1}>
+                      {g.name}
+                    </Typography>
+                    <Typography variant="body-sm">{g.memberCount} participantes</Typography>
+                  </View>
+                  <TouchableOpacity
+                    className="px-4 py-2 rounded-lg bg-primary"
+                    onPress={() => handleJoinPublic(g)}
+                  >
+                    <Typography variant="label-caps" className="text-on-primary">
+                      Unirme
+                    </Typography>
+                  </TouchableOpacity>
+                </View>
+              ))
+            )}
 
             {/* Promo */}
             <View className="rounded-2xl overflow-hidden mt-4 h-40 justify-end">
