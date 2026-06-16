@@ -1,8 +1,9 @@
 import { View, ActivityIndicator } from "react-native";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/colors";
 
 // Spinner para estados de carga.
 export default function Loader({ fullscreen = false }) {
+  const colors = useThemeColors();
   if (fullscreen) {
     return (
       <View className="flex-1 bg-background justify-center">

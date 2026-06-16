@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { dialog } from "../store/useDialog";
 import {
   View,
@@ -17,9 +18,11 @@ import SuccessOverlay from "../components/molecules/SuccessOverlay";
 import { AuthService } from "../api/services/authService";
 import { useAuthStore } from "../store/useAuthStore";
 import { useHorizontalSwipe } from "../utils/useHorizontalSwipe";
-import { colors } from "../theme/colors";
+import { useThemeColors } from "../theme/colors";
 
 export default function RegisterScreen({ navigation }) {
+  const colors = useThemeColors();
+  const { t } = useTranslation();
   const applySession = useAuthStore((s) => s.applySession);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -31,11 +34,11 @@ export default function RegisterScreen({ navigation }) {
 
   const handleRegister = async () => {
     if (!name || !email || !password || !confirm) {
-      dialog.alert("Completa todos los campos.", { title: "Faltan datos" });
+      dialog.alert(t("auth.fillAll"), { title: t("auth.missingDataTitle") });
       return;
     }
     if (password !== confirm) {
-      dialog.alert("Las contraseñas no coinciden.", { title: "Contraseña" });
+      dialog.alert(t("auth.passwordMismatch"), { title: t("auth.passwordTitle") });
       return;
     }
     setLoading(true);
@@ -46,7 +49,7 @@ export default function RegisterScreen({ navigation }) {
       setSession(data);
       setSuccess(true);
     } catch (e) {
-      dialog.alert(e?.response?.data?.error || "No se pudo crear la cuenta.", { title: "Error", tone: "danger" });
+      dialog.alert(e?.response?.data?.error || t("auth.registerFailed"), { title: t("common.error"), tone: "danger" });
       setLoading(false);
     }
   };
@@ -71,7 +74,7 @@ export default function RegisterScreen({ navigation }) {
           <ArrowLeft color={colors.primary} size={20} strokeWidth={2.2} />
         </TouchableOpacity>
         <Typography variant="headline-md" className="text-primary flex-1 text-center mr-10">
-          Polla Mundialista
+          {t("common.appName")}
         </Typography>
       </View>
 
@@ -86,24 +89,24 @@ export default function RegisterScreen({ navigation }) {
           {...swipe}
         >
           <Typography variant="headline-lg" className="mt-3">
-            Crea tu cuenta
+            {t("auth.createAccount")}
           </Typography>
           <Typography variant="body-sm" className="mt-1 mb-6">
-            Únete a la emoción del mundial y compite con tus amigos.
+            {t("auth.registerSubtitle")}
           </Typography>
 
           <IconInput
             icon={User}
-            label="Nombre Completo"
-            placeholder="Ej. Juan Pérez"
+            label={t("auth.fullName")}
+            placeholder={t("auth.fullNamePlaceholder")}
             value={name}
             onChangeText={setName}
           />
           <IconInput
             className="mt-4"
             icon={Mail}
-            label="Correo Electrónico"
-            placeholder="nombre@ejemplo.com"
+            label={t("auth.emailLabel")}
+            placeholder={t("auth.emailPlaceholder")}
             autoCapitalize="none"
             keyboardType="email-address"
             value={email}
@@ -112,7 +115,7 @@ export default function RegisterScreen({ navigation }) {
           <IconInput
             className="mt-4"
             icon={Lock}
-            label="Contraseña"
+            label={t("auth.password")}
             secure
             placeholder="••••••••"
             value={password}
@@ -121,7 +124,7 @@ export default function RegisterScreen({ navigation }) {
           <IconInput
             className="mt-4"
             icon={Lock}
-            label="Confirmar Contraseña"
+            label={t("auth.confirmPassword")}
             secure
             placeholder="••••••••"
             value={confirm}
@@ -130,7 +133,7 @@ export default function RegisterScreen({ navigation }) {
 
           <Button
             className="mt-7"
-            title="Registrarse"
+            title={t("auth.signUp")}
             icon={UserPlus}
             loading={loading}
             onPress={handleRegister}
@@ -141,9 +144,9 @@ export default function RegisterScreen({ navigation }) {
             onPress={() => navigation.goBack()}
           >
             <Typography variant="body-sm">
-              ¿Ya tienes una cuenta?{" "}
+              {t("auth.haveAccount")}{" "}
               <Typography variant="body-sm" className="text-primary">
-                Inicia Sesión
+                {t("auth.doSignIn")}
               </Typography>
             </Typography>
           </TouchableOpacity>

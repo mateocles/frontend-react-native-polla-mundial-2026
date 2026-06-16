@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { dialog } from "../../store/useDialog";
 import { View, Alert } from "react-native";
 import { CalendarDays } from "lucide-react-native";
@@ -14,7 +15,7 @@ import {
   formatMatchShort,
   predictionOutcome,
 } from "../../utils/match";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/colors";
 
 // Tarjeta de partido de la cartelera. Layout: header (fecha + estado),
 // equipos con bandera y marcador (inputs si está abierto, resultado si cerró)
@@ -26,6 +27,8 @@ const OUTCOME_CLASS = {
 };
 
 export default function MatchCard({ match, onSubmit }) {
+  const colors = useThemeColors();
+  const { t } = useTranslation();
   const closed = isMatchClosed(match);
   const finished = match.status === "finished";
   const [home, setHome] = useState(
@@ -40,24 +43,24 @@ export default function MatchCard({ match, onSubmit }) {
   const awayName = getTeamName(match.awayTeamId, match.awayTeamNameEn);
 
   const badge = finished
-    ? { tone: "closed", label: "Finalizado" }
+    ? { tone: "closed", label: t("matches.finished") }
     : closed
-    ? { tone: "closed", label: "Cerrado" }
-    : { tone: "open", label: "Abierto" };
+    ? { tone: "closed", label: t("groupDetail.closed") }
+    : { tone: "open", label: t("matches.open") };
 
   const outcome = finished ? predictionOutcome(match.prediction) : null;
 
   const handleSave = async () => {
     if (home === "" || away === "") {
-      dialog.alert("Ingresa ambos marcadores.", { title: "Faltan datos" });
+      dialog.alert(t("groupDetail.missingScores"), { title: t("groupDetail.missingScoresTitle") });
       return;
     }
     setSaving(true);
     try {
       await onSubmit(match.id, parseInt(home, 10), parseInt(away, 10));
-      dialog.alert("Tu predicción fue registrada.", { title: "Guardado", tone: "success" });
+      dialog.alert(t("matches.predictionRegistered"), { title: t("matches.savedTitle"), tone: "success" });
     } catch (e) {
-      dialog.alert(e?.response?.data?.error || "No se pudo guardar.", { title: "Error", tone: "danger" });
+      dialog.alert(e?.response?.data?.error || t("groupDetail.saveFailed"), { title: t("common.error"), tone: "danger" });
     } finally {
       setSaving(false);
     }
@@ -96,13 +99,13 @@ export default function MatchCard({ match, onSubmit }) {
             </View>
           ) : closed ? (
             <Typography variant="headline-md" className="text-on-surface-variant">
-              VS
+              {t("common.vs")}
             </Typography>
           ) : (
             <View className="flex-row items-center">
               <ScoreInput value={home} onChangeText={setHome} editable />
               <Typography variant="label-caps" className="mx-1">
-                vs
+                {t("common.vs")}
               </Typography>
               <ScoreInput value={away} onChangeText={setAway} editable />
             </View>
@@ -121,13 +124,13 @@ export default function MatchCard({ match, onSubmit }) {
       {match.prediction && (
         <View className="bg-surface-container-lowest rounded-lg mt-4 px-3 py-2 flex-row items-center justify-between">
           <Typography variant="body-sm">
-            {`Tu predicción: ${match.prediction.homeScore} - ${match.prediction.awayScore}`}
+            {t("matches.yourPrediction", { home: match.prediction.homeScore, away: match.prediction.awayScore })}
           </Typography>
           {finished && outcome ? (
             <Typography variant="label-caps" className={OUTCOME_CLASS[outcome.tone]}>
               {match.prediction?.points > 0
-                ? `+${match.prediction.points} pts · ${outcome.label}`
-                : outcome.label}
+                ? `+${match.prediction.points} ${t("common.points")} · ${t(outcome.key)}`
+                : t(outcome.key)}
             </Typography>
           ) : null}
         </View>
@@ -139,7 +142,7 @@ export default function MatchCard({ match, onSubmit }) {
           size="sm"
           loading={saving}
           onPress={handleSave}
-          title={`${match.prediction ? "Actualizar" : "Enviar"} predicción`}
+          title={match.prediction ? t("matches.updatePrediction") : t("matches.sendPrediction")}
         />
       )}
     </Card>

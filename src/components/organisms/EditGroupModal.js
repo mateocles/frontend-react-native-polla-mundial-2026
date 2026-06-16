@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { dialog } from "../../store/useDialog";
 import { Modal, View, Image, TouchableOpacity, Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
@@ -7,11 +8,13 @@ import { compressToBase64 } from "../../utils/image";
 import Typography from "../atoms/Typography";
 import Input from "../atoms/Input";
 import Button from "../atoms/Button";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/colors";
 
 // Modal para que el admin edite el nombre y la imagen del grupo.
 // La imagen se sube como data URI base64 para guardarla en la base de datos.
 export default function EditGroupModal({ visible, group, onClose, onSave }) {
+  const colors = useThemeColors();
+  const { t } = useTranslation();
   const [name, setName] = useState(group?.name || "");
   const [image, setImage] = useState(group?.imageUrl || null);
   const [saving, setSaving] = useState(false);
@@ -19,7 +22,7 @@ export default function EditGroupModal({ visible, group, onClose, onSave }) {
   const pickImage = async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
-      dialog.alert("Necesitamos acceso a tus fotos.", { title: "Permiso requerido" });
+      dialog.alert(t("profile.photoPermission"), { title: t("profile.permissionRequired") });
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -40,7 +43,7 @@ export default function EditGroupModal({ visible, group, onClose, onSave }) {
 
   const handleSave = async () => {
     if (!name.trim()) {
-      dialog.alert("El nombre no puede estar vacío.", { title: "Nombre" });
+      dialog.alert(t("groupDetail.emptyName"), { title: t("groupDetail.nameTitle") });
       return;
     }
     setSaving(true);
@@ -48,7 +51,7 @@ export default function EditGroupModal({ visible, group, onClose, onSave }) {
       await onSave({ name: name.trim(), imageUrl: image });
       onClose();
     } catch (e) {
-      dialog.alert(e?.response?.data?.error || "No se pudo guardar.", { title: "Error", tone: "danger" });
+      dialog.alert(e?.response?.data?.error || t("groupDetail.saveFailed"), { title: t("common.error"), tone: "danger" });
     } finally {
       setSaving(false);
     }
@@ -62,7 +65,7 @@ export default function EditGroupModal({ visible, group, onClose, onSave }) {
           style={{ borderWidth: 1, borderColor: "rgba(255,255,255,0.06)" }}
         >
           <View className="flex-row items-center justify-between mb-5">
-            <Typography variant="headline-md">Editar grupo</Typography>
+            <Typography variant="headline-md">{t("groupDetail.editGroup")}</Typography>
             <TouchableOpacity onPress={onClose} hitSlop={8}>
               <X color={colors.onSurfaceVariant} size={22} />
             </TouchableOpacity>
@@ -81,7 +84,7 @@ export default function EditGroupModal({ visible, group, onClose, onSave }) {
               <View className="items-center">
                 <ImagePlus color={colors.primary} size={28} strokeWidth={2} />
                 <Typography variant="body-sm" className="mt-2">
-                  Agregar imagen del grupo
+                  {t("groupDetail.addImageGroup")}
                 </Typography>
               </View>
             )}
@@ -89,18 +92,18 @@ export default function EditGroupModal({ visible, group, onClose, onSave }) {
           {image ? (
             <TouchableOpacity onPress={pickImage} className="mb-4">
               <Typography variant="label-caps" className="text-primary">
-                Cambiar imagen
+                {t("groupDetail.changeImage")}
               </Typography>
             </TouchableOpacity>
           ) : null}
 
           {/* Nombre */}
           <Typography variant="label-caps" className="mb-1.5">
-            Nombre del grupo
+            {t("groupDetail.groupName")}
           </Typography>
-          <Input value={name} onChangeText={setName} placeholder="Nombre del grupo" />
+          <Input value={name} onChangeText={setName} placeholder={t("groupDetail.groupName")} />
 
-          <Button className="mt-5" title="Guardar cambios" loading={saving} onPress={handleSave} />
+          <Button className="mt-5" title={t("groupDetail.saveChanges")} loading={saving} onPress={handleSave} />
         </View>
       </View>
     </Modal>

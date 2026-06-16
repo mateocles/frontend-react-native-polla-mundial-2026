@@ -1,9 +1,10 @@
 import { View, TouchableOpacity } from "react-native";
 import Typography from "../atoms/Typography";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/colors";
 
 // Tabs con subrayado (estilo del diseño de Grupos). options: [{key,label}].
 export default function UnderlineTabs({ options, value, onChange }) {
+  const colors = useThemeColors();
   return (
     <View className="flex-row border-b border-outline-variant">
       {options.map((opt) => {

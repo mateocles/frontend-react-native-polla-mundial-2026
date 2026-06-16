@@ -2,7 +2,6 @@ import { View, TouchableOpacity } from "react-native";
 import { Crown, Medal } from "lucide-react-native";
 import Avatar from "../atoms/Avatar";
 import Typography from "../atoms/Typography";
-import { colors } from "../../theme/colors";
 
 const MEDAL = {
   1: { ring: "#facc15", barH: 128, bar: "bg-primary/20", label: "text-primary", rankClass: "text-primary" },

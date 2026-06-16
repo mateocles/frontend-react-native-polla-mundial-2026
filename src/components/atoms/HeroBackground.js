@@ -1,10 +1,11 @@
 import { View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/colors";
 
 // Fondo "Pitch Dark Kinetic" para pantallas de bienvenida:
 // gradiente diagonal + orbe de luz esmeralda difusa.
 export default function HeroBackground() {
+  const colors = useThemeColors();
   return (
     <View className="absolute inset-0" pointerEvents="none">
       <LinearGradient

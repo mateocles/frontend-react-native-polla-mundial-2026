@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { TextInput } from "react-native";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/colors";
 
 // Campo de texto con look "inset" y estado de foco con glow esmeralda.
 export default function Input({ className = "", style, onFocus, onBlur, ...props }) {
+  const colors = useThemeColors();
   const [focused, setFocused] = useState(false);
 
   return (

@@ -1,10 +1,11 @@
 import { TouchableOpacity, View } from "react-native";
 import { ChevronRight } from "lucide-react-native";
 import Typography from "../atoms/Typography";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/colors";
 
 // Fila de menú: icono + etiqueta + chevron. Para listas de ajustes.
 export default function MenuRow({ icon: Icon, label, onPress }) {
+  const colors = useThemeColors();
   return (
     <TouchableOpacity
       className="flex-row items-center bg-surface-container rounded-xl px-4 py-4 mb-2.5"

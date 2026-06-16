@@ -1,18 +1,23 @@
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { View, Animated, Easing } from "react-native";
 import { Check } from "lucide-react-native";
 import Typography from "../atoms/Typography";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/colors";
 
 // Overlay de feedback de éxito con barra de progreso. Llama a `onDone`
 // cuando termina la animación (duración configurable).
 export default function SuccessOverlay({
   visible,
-  title = "¡Cuenta Creada!",
-  message = "Bienvenido al estadio digital más grande del mundo.",
+  title,
+  message,
   duration = 1800,
   onDone,
 }) {
+  const colors = useThemeColors();
+  const { t } = useTranslation();
+  const resolvedTitle = title ?? t("auth.accountCreated");
+  const resolvedMessage = message ?? t("auth.welcomeStadium");
   const progress = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -52,10 +57,10 @@ export default function SuccessOverlay({
           <Check color={colors.onPrimary} size={32} strokeWidth={3} />
         </View>
         <Typography variant="headline-md" className="mb-1">
-          {title}
+          {resolvedTitle}
         </Typography>
         <Typography variant="body-sm" className="text-center mb-5">
-          {message}
+          {resolvedMessage}
         </Typography>
         <View className="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
           <Animated.View className="h-full bg-primary" style={{ width }} />

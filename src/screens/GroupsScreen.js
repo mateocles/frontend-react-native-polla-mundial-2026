@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { dialog } from "../store/useDialog";
-import { View, ScrollView, TouchableOpacity, RefreshControl, Alert } from "react-native";
+import { View, ScrollView, TouchableOpacity, RefreshControl } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Bell, PlusCircle, UserPlus, KeyRound } from "lucide-react-native";
@@ -9,6 +10,7 @@ import Typography from "../components/atoms/Typography";
 import Avatar from "../components/atoms/Avatar";
 import Loader from "../components/atoms/Loader";
 import EmptyState from "../components/atoms/EmptyState";
+import ErrorState from "../components/atoms/ErrorState";
 import UnderlineTabs from "../components/molecules/UnderlineTabs";
 import GroupCard from "../components/molecules/GroupCard";
 import ActionCard from "../components/molecules/ActionCard";
@@ -16,27 +18,29 @@ import CreateGroupForm from "../components/organisms/CreateGroupForm";
 import JoinGroupForm from "../components/organisms/JoinGroupForm";
 import { useGroupsStore } from "../store/useGroupsStore";
 import { useAuthStore } from "../store/useAuthStore";
-import { colors } from "../theme/colors";
-
-const TABS = [
-  { key: "groups", label: "Mis Grupos" },
-  { key: "actions", label: "Acciones" },
-];
+import { useThemeColors } from "../theme/colors";
 
 export default function GroupsScreen({ navigation }) {
+  const { t } = useTranslation();
+  const colors = useThemeColors();
   const {
-    groups, publicGroups, loading, fetchGroups, fetchPublicGroups,
+    groups, publicGroups, loading, error, fetchGroups, fetchPublicGroups,
     createGroup, joinGroup, joinPublicGroup,
   } = useGroupsStore();
   const user = useAuthStore((s) => s.user);
   const [tab, setTab] = useState("groups");
   const [activeForm, setActiveForm] = useState(null); // 'create' | 'join' | null
 
+  const TABS = [
+    { key: "groups", label: t("groups.tabMine") },
+    { key: "actions", label: t("groups.tabActions") },
+  ];
+
+  const loadGroups = () => fetchGroups().catch(() => {});
+
   useFocusEffect(
     useCallback(() => {
-      fetchGroups().catch(() =>
-        dialog.alert("No se pudieron cargar los grupos.", { title: "Error", tone: "danger" })
-      );
+      fetchGroups().catch(() => {});
       fetchPublicGroups().catch(() => {});
     }, [fetchGroups, fetchPublicGroups])
   );
@@ -61,7 +65,7 @@ export default function GroupsScreen({ navigation }) {
       await joinPublicGroup(g.id);
       setTab("groups");
     } catch (e) {
-      dialog.alert(e?.response?.data?.error || "No se pudo unir.", { title: "Error", tone: "danger" });
+      dialog.alert(e?.response?.data?.error || t("groups.joinFailed"), { title: t("common.error"), tone: "danger" });
     }
   };
 
@@ -72,7 +76,7 @@ export default function GroupsScreen({ navigation }) {
         <View className="flex-row items-center">
           <Avatar name={user?.name} uri={user?.avatarUrl} size={32} />
           <Typography variant="headline-md" className="text-primary ml-3">
-            Polla Mundialista
+            {t("common.appName")}
           </Typography>
         </View>
         <TouchableOpacity hitSlop={8}>
@@ -95,8 +99,10 @@ export default function GroupsScreen({ navigation }) {
         {tab === "groups" ? (
           loading && groups.length === 0 ? (
             <Loader />
+          ) : error && groups.length === 0 ? (
+            <ErrorState onRetry={loadGroups} />
           ) : groups.length === 0 ? (
-            <EmptyState message="Aún no perteneces a ningún grupo. Ve a Acciones para crear o unirte." />
+            <EmptyState message={t("groups.noGroups")} />
           ) : (
             groups.map((g) => (
               <GroupCard key={g.id} group={g} onOpenRanking={() => goToRanking(g)} />
@@ -110,10 +116,10 @@ export default function GroupsScreen({ navigation }) {
                 <PlusCircle color={colors.primary} size={36} strokeWidth={2} />
               </View>
               <Typography variant="headline-lg" className="mb-2">
-                Gestionar Grupos
+                {t("groups.manage")}
               </Typography>
               <Typography variant="body-sm" className="text-center px-8">
-                Crea tu propia liga privada o únete a la de tus amigos para competir.
+                {t("groups.manageSubtitle")}
               </Typography>
             </View>
 
@@ -122,8 +128,8 @@ export default function GroupsScreen({ navigation }) {
               icon={UserPlus}
               iconColor={colors.primary}
               tone="primary"
-              title="Crear Grupo"
-              subtitle="Define reglas y premios personalizados."
+              title={t("groups.create")}
+              subtitle={t("groups.createSubtitle")}
               onPress={() => setActiveForm(activeForm === "create" ? null : "create")}
             />
             {activeForm === "create" ? <CreateGroupForm onCreate={handleCreate} /> : null}
@@ -132,19 +138,19 @@ export default function GroupsScreen({ navigation }) {
               icon={KeyRound}
               iconColor={colors.secondary}
               tone="secondary"
-              title="Unirse con Código"
-              subtitle="Ingresa el token de invitación de tu liga."
+              title={t("groups.joinByCode")}
+              subtitle={t("groups.joinByCodeSubtitle")}
               onPress={() => setActiveForm(activeForm === "join" ? null : "join")}
             />
             {activeForm === "join" ? <JoinGroupForm onJoin={handleJoin} /> : null}
 
             {/* Grupos públicos */}
             <Typography variant="label-caps" className="mt-6 mb-3">
-              Grupos públicos
+              {t("groups.publicGroups")}
             </Typography>
             {publicGroups.length === 0 ? (
               <Typography variant="body-sm" className="mb-2">
-                No hay grupos públicos por ahora.
+                {t("groups.noPublicGroups")}
               </Typography>
             ) : (
               publicGroups.map((g) => (
@@ -158,14 +164,14 @@ export default function GroupsScreen({ navigation }) {
                     <Typography variant="body" className="font-bold" numberOfLines={1}>
                       {g.name}
                     </Typography>
-                    <Typography variant="body-sm">{g.memberCount} participantes</Typography>
+                    <Typography variant="body-sm">{t("groups.participants", { count: g.memberCount })}</Typography>
                   </View>
                   <TouchableOpacity
                     className="px-4 py-2 rounded-lg bg-primary"
                     onPress={() => handleJoinPublic(g)}
                   >
                     <Typography variant="label-caps" className="text-on-primary">
-                      Unirme
+                      {t("groups.joinBtn")}
                     </Typography>
                   </TouchableOpacity>
                 </View>
@@ -182,9 +188,9 @@ export default function GroupsScreen({ navigation }) {
               />
               <View className="p-5">
                 <Typography variant="label-caps" className="text-primary mb-1">
-                  Próxima Copa
+                  {t("groups.promoTitle")}
                 </Typography>
-                <Typography variant="headline-md">¡Vive la emoción grupal!</Typography>
+                <Typography variant="headline-md">{t("groups.promoSubtitle")}</Typography>
               </View>
             </View>
           </View>

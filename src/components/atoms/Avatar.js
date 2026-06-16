@@ -1,8 +1,9 @@
 import { View, Text, Image } from "react-native";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/colors";
 
 // Avatar circular. Si recibe `uri` muestra la imagen; si no, la inicial.
 export default function Avatar({ name, uri, size = 80 }) {
+  const colors = useThemeColors();
   if (uri) {
     return (
       <View

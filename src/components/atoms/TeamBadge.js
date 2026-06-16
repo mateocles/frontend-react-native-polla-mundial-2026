@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { View, Text, Image } from "react-native";
 import { teamFlagUrl } from "../../utils/flags";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/colors";
 
 // Insignia de selección: bandera real desde flagcdn.com (imagen). Si no hay
 // código o falla la carga, muestra las iniciales del nombre.
 export default function TeamBadge({ name, size = 48 }) {
+  const colors = useThemeColors();
   const [failed, setFailed] = useState(false);
   // Pedimos ~2x para nitidez en retina.
   const width = size <= 32 ? 80 : 160;

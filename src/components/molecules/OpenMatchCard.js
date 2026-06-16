@@ -1,13 +1,16 @@
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { CalendarDays } from "lucide-react-native";
 import Typography from "../atoms/Typography";
 import TeamBadge from "../atoms/TeamBadge";
 import { getTeamName, formatMatchShort } from "../../utils/match";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/colors";
 
 // Tarjeta de partido abierto (glass) — SOLO LECTURA. Las predicciones se
 // realizan desde la sección de Grupos, no desde aquí.
 export default function OpenMatchCard({ match }) {
+  const colors = useThemeColors();
+  const { t } = useTranslation();
   const homeName = getTeamName(match.homeTeamId, match.homeTeamNameEn);
   const awayName = getTeamName(match.awayTeamId, match.awayTeamNameEn);
 
@@ -30,7 +33,7 @@ export default function OpenMatchCard({ match }) {
         </View>
         <View className="px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20">
           <Typography variant="label-caps" className="text-primary">
-            Abierto
+            {t("matches.open")}
           </Typography>
         </View>
       </View>
@@ -44,7 +47,7 @@ export default function OpenMatchCard({ match }) {
           </Typography>
         </View>
         <Typography variant="headline-md" className="text-on-surface-variant px-2">
-          VS
+          {t("common.vs")}
         </Typography>
         <View className="flex-1 items-center">
           <TeamBadge name={awayName} size={48} />
@@ -58,7 +61,7 @@ export default function OpenMatchCard({ match }) {
       {match.prediction ? (
         <View className="bg-surface-container-lowest rounded-lg px-3 py-2 flex-row items-center justify-center">
           <Typography variant="body-sm" className="text-on-surface-variant">
-            Tu predicción: {match.prediction.homeScore} - {match.prediction.awayScore}
+            {t("matches.yourPrediction", { home: match.prediction.homeScore, away: match.prediction.awayScore })}
           </Typography>
         </View>
       ) : null}

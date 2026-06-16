@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { dialog } from "../store/useDialog";
-import { View, FlatList, RefreshControl, TouchableOpacity, Alert } from "react-native";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { View, FlatList, RefreshControl, TouchableOpacity } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Bell } from "lucide-react-native";
@@ -9,6 +9,7 @@ import Typography from "../components/atoms/Typography";
 import Avatar from "../components/atoms/Avatar";
 import Loader from "../components/atoms/Loader";
 import EmptyState from "../components/atoms/EmptyState";
+import ErrorState from "../components/atoms/ErrorState";
 import SegmentedFilter from "../components/molecules/SegmentedFilter";
 import OpenMatchCard from "../components/molecules/OpenMatchCard";
 import ClosedMatchCard from "../components/molecules/ClosedMatchCard";
@@ -16,23 +17,24 @@ import LiveMatchCard from "../components/molecules/LiveMatchCard";
 import { useMatchesStore } from "../store/useMatchesStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { isMatchClosed, formatMatchShort } from "../utils/match";
-import { colors } from "../theme/colors";
-
-const TABS = [
-  { key: "open", label: "Próximos" },
-  { key: "closed", label: "Finalizados" },
-];
+import { useThemeColors } from "../theme/colors";
 
 export default function MatchesScreen() {
-  const { matches, loading, fetchMatches } = useMatchesStore();
+  const { t } = useTranslation();
+  const colors = useThemeColors();
+  const { matches, loading, error, fetchMatches } = useMatchesStore();
   const user = useAuthStore((s) => s.user);
   const [tab, setTab] = useState("open");
+  const [now, setNow] = useState(() => Date.now());
+
+  const TABS = [
+    { key: "open", label: t("matches.tabUpcoming") },
+    { key: "closed", label: t("matches.tabFinished") },
+  ];
 
   useFocusEffect(
     useCallback(() => {
-      fetchMatches().catch(() =>
-        dialog.alert("No se pudieron cargar los partidos.", { title: "Error", tone: "danger" })
-      );
+      fetchMatches().catch(() => {});
     }, [fetchMatches])
   );
 
@@ -48,11 +50,12 @@ export default function MatchesScreen() {
   const list = tab === "open" ? open : closed;
   const nextDate = open[0]?.matchDate;
 
-  // Auto-refresh cada 30s mientras haya partidos en vivo.
+  // Auto-refresh cada 30s + tick del reloj de minuto en vivo, mientras haya live.
   useEffect(() => {
     if (live.length === 0) return;
     const id = setInterval(() => {
       fetchMatches().catch(() => {});
+      setNow(Date.now());
     }, 30000);
     return () => clearInterval(id);
   }, [live.length, fetchMatches]);
@@ -65,6 +68,14 @@ export default function MatchesScreen() {
     );
   }
 
+  if (error && matches.length === 0) {
+    return (
+      <Screen padded={false} edges={["top"]}>
+        <ErrorState onRetry={() => fetchMatches().catch(() => {})} />
+      </Screen>
+    );
+  }
+
   return (
     <Screen padded={false} edges={["top"]}>
       {/* AppBar */}
@@ -72,7 +83,7 @@ export default function MatchesScreen() {
         <View className="flex-row items-center">
           <Avatar name={user?.name} uri={user?.avatarUrl} size={32} />
           <Typography variant="headline-md" className="text-primary ml-3">
-            Partidos del Mundial
+            {t("matches.title")}
           </Typography>
         </View>
         <TouchableOpacity hitSlop={8}>
@@ -108,10 +119,10 @@ export default function MatchesScreen() {
               />
               <View className="p-4">
                 <Typography variant="label-caps" className="text-primary">
-                  Próxima Jornada
+                  {t("matches.nextRound")}
                 </Typography>
                 <Typography variant="headline-lg" className="mt-0.5">
-                  {nextDate ? formatMatchShort(nextDate) : "Sin partidos"}
+                  {nextDate ? formatMatchShort(nextDate) : t("matches.noMatches")}
                 </Typography>
               </View>
             </View>
@@ -122,11 +133,11 @@ export default function MatchesScreen() {
                 <View className="flex-row items-center mb-3">
                   <View className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: colors.tertiary }} />
                   <Typography variant="label-caps" style={{ color: colors.tertiary }}>
-                    En vivo ahora
+                    {t("matches.liveNow")}
                   </Typography>
                 </View>
                 {live.map((m) => (
-                  <LiveMatchCard key={m.id} match={m} />
+                  <LiveMatchCard key={m.id} match={m} now={now} />
                 ))}
               </View>
             )}
@@ -139,11 +150,11 @@ export default function MatchesScreen() {
             {/* Conteo */}
             <View className="flex-row items-center justify-between mb-3">
               <Typography variant="label-caps">
-                {tab === "open" ? "Partidos próximos" : "Partidos finalizados"}
+                {tab === "open" ? t("matches.upcomingMatches") : t("matches.finishedMatches")}
               </Typography>
               <View className="px-2 py-1 rounded-full bg-surface-container-highest">
                 <Typography variant="label-caps" className="text-primary">
-                  {list.length} {tab === "open" ? "Disponibles" : "Jugados"}
+                  {list.length} {tab === "open" ? t("matches.available") : t("matches.played")}
                 </Typography>
               </View>
             </View>
@@ -158,11 +169,7 @@ export default function MatchesScreen() {
         }
         ListEmptyComponent={
           <EmptyState
-            message={
-              tab === "open"
-                ? "No hay partidos próximos."
-                : "Aún no hay partidos finalizados."
-            }
+            message={tab === "open" ? t("matches.noUpcoming") : t("matches.noFinished")}
           />
         }
       />

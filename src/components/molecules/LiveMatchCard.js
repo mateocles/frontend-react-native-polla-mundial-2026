@@ -1,13 +1,17 @@
 import { View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Typography from "../atoms/Typography";
 import TeamBadge from "../atoms/TeamBadge";
-import { getTeamName } from "../../utils/match";
-import { colors } from "../../theme/colors";
+import { getTeamName, liveMinute } from "../../utils/match";
+import { useThemeColors } from "../../theme/colors";
 
-// Tarjeta de partido EN VIVO: marcador actual + badge rojo.
-export default function LiveMatchCard({ match }) {
+// Tarjeta de partido EN VIVO: marcador actual + badge rojo + minuto (cliente).
+export default function LiveMatchCard({ match, now = Date.now() }) {
+  const { t } = useTranslation();
+  const colors = useThemeColors();
   const home = getTeamName(match.homeTeamId, match.homeTeamNameEn);
   const away = getTeamName(match.awayTeamId, match.awayTeamNameEn);
+  const min = liveMinute(match.matchDate, now);
 
   return (
     <View
@@ -24,12 +28,12 @@ export default function LiveMatchCard({ match }) {
         <View className="flex-row items-center px-2 py-0.5 rounded-full" style={{ backgroundColor: "rgba(255,180,162,0.15)" }}>
           <View className="w-1.5 h-1.5 rounded-full mr-1.5" style={{ backgroundColor: colors.tertiary }} />
           <Typography variant="label-caps" style={{ color: colors.tertiary }}>
-            En vivo
+            {t("matches.live")} · {t(min.key, { min: min.min })}
           </Typography>
         </View>
         {match.prediction ? (
           <Typography variant="label-caps">
-            Tu predicción: {match.prediction.homeScore} - {match.prediction.awayScore}
+            {t("matches.yourPrediction", { home: match.prediction.homeScore, away: match.prediction.awayScore })}
           </Typography>
         ) : null}
       </View>

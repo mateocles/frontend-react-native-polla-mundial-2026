@@ -2,7 +2,7 @@ import { useState } from "react";
 import { View, TextInput, TouchableOpacity } from "react-native";
 import { Eye, EyeOff } from "lucide-react-native";
 import Typography from "./Typography";
-import { colors } from "../../theme/colors";
+import { colors, useThemeColors } from "../../theme/colors";
 
 // Input con icono líder del design system "Pitch Dark Kinetic".
 // variant:
@@ -38,6 +38,7 @@ export default function IconInput({
   className = "",
   ...props
 }) {
+  const colors = useThemeColors();
   const v = VARIANTS[variant] || VARIANTS.filled;
   const [focused, setFocused] = useState(false);
   const [hidden, setHidden] = useState(secure);

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { dialog } from "../../store/useDialog";
 import { View, Alert } from "react-native";
 import { CalendarDays } from "lucide-react-native";
@@ -12,7 +13,7 @@ import {
   predictionOutcome,
   isMatchClosed,
 } from "../../utils/match";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/colors";
 
 const OUTCOME_CLASS = {
   primary: "text-primary",
@@ -23,6 +24,8 @@ const OUTCOME_CLASS = {
 // Tarjeta para predecir dentro de un grupo: editable si el partido está
 // abierto; muestra resultado y acierto si ya finalizó.
 export default function PredictionMatchCard({ match, onSubmit }) {
+  const colors = useThemeColors();
+  const { t } = useTranslation();
   const finished = match.status === "finished";
   // Cerrado = ya empezó o terminó. No se puede predecir ni modificar.
   const closed = isMatchClosed(match);
@@ -40,15 +43,15 @@ export default function PredictionMatchCard({ match, onSubmit }) {
 
   const handleSave = async () => {
     if (home === "" || away === "") {
-      dialog.alert("Ingresa ambos marcadores.", { title: "Faltan datos" });
+      dialog.alert(t("groupDetail.missingScores"), { title: t("groupDetail.missingScoresTitle") });
       return;
     }
     setSaving(true);
     try {
       await onSubmit(match.id, parseInt(home, 10), parseInt(away, 10));
-      dialog.alert("Tu pronóstico fue registrado.", { title: "¡Predicción guardada!", tone: "success" });
+      dialog.alert(t("groupDetail.predictionSaved"), { title: t("groupDetail.predictionSavedTitle"), tone: "success" });
     } catch (e) {
-      dialog.alert(e?.response?.data?.error || "No se pudo guardar.", { title: "Error", tone: "danger" });
+      dialog.alert(e?.response?.data?.error || t("groupDetail.saveFailed"), { title: t("common.error"), tone: "danger" });
     } finally {
       setSaving(false);
     }
@@ -75,9 +78,9 @@ export default function PredictionMatchCard({ match, onSubmit }) {
             +{match.prediction.points} pts
           </Typography>
         ) : finished ? (
-          <Typography variant="label-caps">Final</Typography>
+          <Typography variant="label-caps">{t("groupDetail.final")}</Typography>
         ) : closed ? (
-          <Typography variant="label-caps">Cerrado</Typography>
+          <Typography variant="label-caps">{t("groupDetail.closed")}</Typography>
         ) : null}
       </View>
 
@@ -102,7 +105,7 @@ export default function PredictionMatchCard({ match, onSubmit }) {
           ) : (
             <View className="flex-row items-center">
               <ScoreInput value={home} onChangeText={setHome} editable />
-              <Typography variant="label-caps" className="mx-1">vs</Typography>
+              <Typography variant="label-caps" className="mx-1">{t("common.vs")}</Typography>
               <ScoreInput value={away} onChangeText={setAway} editable />
             </View>
           )}
@@ -120,11 +123,11 @@ export default function PredictionMatchCard({ match, onSubmit }) {
         match.prediction ? (
           <View className="mt-3 pt-2 border-t border-white/5 flex-row justify-between">
             <Typography variant="body-sm" className="italic">
-              Tu predicción: {match.prediction.homeScore} - {match.prediction.awayScore}
+              {t("matches.yourPrediction", { home: match.prediction.homeScore, away: match.prediction.awayScore })}
             </Typography>
             {outcome ? (
               <Typography variant="label-caps" className={OUTCOME_CLASS[outcome.tone]}>
-                +{match.prediction.points} pts · {outcome.label}
+                +{match.prediction.points} {t("common.points")} · {t(outcome.key)}
               </Typography>
             ) : null}
           </View>
@@ -134,11 +137,11 @@ export default function PredictionMatchCard({ match, onSubmit }) {
         <View className="mt-3 pt-2 border-t border-white/5 flex-row justify-between">
           <Typography variant="body-sm" className="italic">
             {match.prediction
-              ? `Tu predicción: ${match.prediction.homeScore} - ${match.prediction.awayScore}`
-              : "Sin predicción"}
+              ? t("matches.yourPrediction", { home: match.prediction.homeScore, away: match.prediction.awayScore })
+              : t("matches.noPrediction")}
           </Typography>
           <Typography variant="label-caps" className="text-on-surface-variant">
-            Pronósticos cerrados
+            {t("matches.predictionsClosed")}
           </Typography>
         </View>
       ) : (
@@ -148,7 +151,7 @@ export default function PredictionMatchCard({ match, onSubmit }) {
           size="sm"
           loading={saving}
           onPress={handleSave}
-          title="Guardar Pronóstico"
+          title={t("matches.savePrediction")}
         />
       )}
     </View>

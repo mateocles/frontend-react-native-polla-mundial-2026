@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { View, TouchableOpacity } from "react-native";
 import { CalendarDays, ChevronDown, ChevronUp, Goal } from "lucide-react-native";
 import Typography from "../atoms/Typography";
@@ -9,7 +10,7 @@ import {
   formatMatchDate,
   predictionOutcome,
 } from "../../utils/match";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/colors";
 
 // Tarjeta de partido cerrado/finalizado con "drawer" (acordeón): al tocarla
 // se despliega el detalle completo (marcador, tu predicción, puntos y acierto).
@@ -34,6 +35,8 @@ function DetailRow({ label, value, valueClass = "text-on-surface" }) {
 }
 
 export default function ClosedMatchCard({ match }) {
+  const colors = useThemeColors();
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const finished = match.status === "finished";
   const homeName = getTeamName(match.homeTeamId, match.homeTeamNameEn);
@@ -62,7 +65,7 @@ export default function ClosedMatchCard({ match }) {
           </View>
           <View className="px-2 py-0.5 rounded-full bg-surface-variant">
             <Typography variant="label-caps">
-              {finished ? "Finalizado" : "Cerrado"}
+              {finished ? t("matches.finished") : t("groupDetail.closed")}
             </Typography>
           </View>
         </View>
@@ -82,7 +85,7 @@ export default function ClosedMatchCard({ match }) {
                 {finished ? match.homeScore : "-"}
               </Typography>
               <Typography variant="label-caps" className="mx-3">
-                vs
+                {t("common.vs")}
               </Typography>
               <Typography variant="score-display" className="text-on-surface-variant">
                 {finished ? match.awayScore : "-"}
@@ -106,7 +109,7 @@ export default function ClosedMatchCard({ match }) {
         {/* Indicador del drawer */}
         <View className="flex-row items-center justify-center mt-3">
           <Typography variant="label-caps" className="mr-1">
-            {open ? "Ocultar detalle" : "Ver detalle"}
+            {open ? t("matches.hideDetail") : t("matches.showDetail")}
           </Typography>
           {open ? (
             <ChevronUp color={colors.onSurfaceVariant} size={16} />
@@ -125,7 +128,7 @@ export default function ClosedMatchCard({ match }) {
               <View className="flex-row items-center mb-2">
                 <Goal color={colors.primary} size={14} strokeWidth={2} />
                 <Typography variant="label-caps" className="ml-1.5 text-primary">
-                  Goleadores
+                  {t("matches.scorers")}
                 </Typography>
               </View>
               <View className="flex-row">
@@ -160,30 +163,30 @@ export default function ClosedMatchCard({ match }) {
             </View>
           ) : null}
 
-          <DetailRow label="Fecha y hora" value={formatMatchDate(match.matchDate)} />
+          <DetailRow label={t("matches.dateTime")} value={formatMatchDate(match.matchDate)} />
           <DetailRow
-            label="Marcador final"
+            label={t("matches.finalScore")}
             value={
               finished ? `${homeName} ${match.homeScore} - ${match.awayScore} ${awayName}` : "—"
             }
           />
           <DetailRow
-            label="Tu predicción"
+            label={t("matches.predictionLabel")}
             value={
               match.prediction
                 ? `${match.prediction.homeScore} - ${match.prediction.awayScore}`
-                : "Sin predicción"
+                : t("matches.noPrediction")
             }
           />
           <DetailRow
-            label="Puntos obtenidos"
-            value={match.prediction ? `+${match.prediction.points} pts` : "0 pts"}
+            label={t("matches.pointsObtained")}
+            value={match.prediction ? `+${match.prediction.points} ${t("common.points")}` : t("matches.zeroPts")}
             valueClass="text-primary"
           />
           {outcome ? (
             <DetailRow
-              label="Resultado"
-              value={outcome.label}
+              label={t("matches.resultLabel")}
+              value={t(outcome.key)}
               valueClass={OUTCOME_CLASS[outcome.tone]}
             />
           ) : null}
@@ -193,11 +196,11 @@ export default function ClosedMatchCard({ match }) {
         match.prediction ? (
           <View className="mt-4 pt-2 border-t border-white/5 flex-row justify-between">
             <Typography variant="body-sm" className="italic">
-              Tu predicción: {match.prediction.homeScore} - {match.prediction.awayScore}
+              {t("matches.yourPrediction", { home: match.prediction.homeScore, away: match.prediction.awayScore })}
             </Typography>
             {outcome ? (
               <Typography variant="label-caps" className={OUTCOME_CLASS[outcome.tone]}>
-                {outcome.label}
+                {t(outcome.key)}
               </Typography>
             ) : null}
           </View>

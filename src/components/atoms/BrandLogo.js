@@ -1,9 +1,10 @@
 import { View } from "react-native";
 import Svg, { Circle, Polygon, Line } from "react-native-svg";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/colors";
 
 // Logo de marca: balón de fútbol en line-art esmeralda dentro de un círculo.
 export default function BrandLogo({ size = 72 }) {
+  const colors = useThemeColors();
   const s = size * 0.55;
   return (
     <View

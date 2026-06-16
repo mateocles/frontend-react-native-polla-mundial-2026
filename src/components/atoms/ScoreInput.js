@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { TextInput } from "react-native";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/colors";
 
 // Input de marcador con estética de scoreboard (Inter ExtraBold).
 export default function ScoreInput({ value, onChangeText, editable = true }) {
+  const colors = useThemeColors();
   const [focused, setFocused] = useState(false);
 
   return (

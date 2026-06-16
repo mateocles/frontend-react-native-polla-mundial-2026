@@ -33,11 +33,12 @@ Regla: las pantallas usan `store`/`services`, nunca axios directo.
 
 ## Funcionalidades actuales
 - **Auth**: login/registro por correo. El endpoint Google existe pero **los botones de Google están ocultos** en Login/Register (se pueden reactivar con `GoogleSignInButton`; requiere client IDs nativos + dev build).
-- **Partidos** (solo lectura): tabs Próximos/Finalizados; finalizados con **drawer de goleadores**.
+- **Partidos** (solo lectura): sección **"En vivo ahora"** (status `live`, `LiveMatchCard` con marcador actual) + tabs Próximos/Finalizados; finalizados con **drawer de goleadores**. **Auto-refresh** (polling 30s) mientras haya partidos en vivo.
 - **Grupos**: tabs Mis Grupos / Acciones. Crear (**switch Público/Privado**), unirse por código, **explorar y unirse a grupos públicos**.
 - **Detalle de grupo** (`LeaderboardScreen`):
   - Banner **editable solo admin** (imagen base64 comprimida).
-  - **Ranking**: podio + lista con **fotos** (avatar) y badge **Admin**; tocar un usuario abre **UserPredictionsModal** (sus pronósticos de partidos cerrados).
+  - Código de invitación **inmerso en el banner** (no tarjeta aparte).
+  - **Ranking**: podio + lista con **fotos** (avatar) y badge **Admin**; **tocar cualquiera (podio o lista)** abre **UserPredictionsModal** (sus pronósticos de partidos cerrados, con **scroll interno** tras ~3 y la X siempre visible).
   - **Mis Pronósticos**: predecir (bloqueado al iniciar el partido).
 - **Perfil**: avatar editable (subida + compresión base64), stats, logout.
 - **Diálogos bonitos**: `useDialog` + `DialogHost` (alert/confirm) — reemplazan los `Alert.alert` nativos.

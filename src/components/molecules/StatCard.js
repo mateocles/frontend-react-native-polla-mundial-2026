@@ -1,7 +1,7 @@
 import { View } from "react-native";
 import Card from "../atoms/Card";
 import Typography from "../atoms/Typography";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/colors";
 
 // Tarjeta de estadística: etiqueta + valor. `highlight` usa el score-display
 // esmeralda (para el dato principal); `icon` opcional a la derecha.
@@ -12,6 +12,7 @@ export default function StatCard({
   icon: Icon,
   className = "",
 }) {
+  const colors = useThemeColors();
   return (
     <Card className={`flex-row items-center justify-between ${className}`}>
       <View className="flex-1">

@@ -1,5 +1,5 @@
 import { TouchableOpacity, Text, ActivityIndicator } from "react-native";
-import { colors } from "../../theme/colors";
+import { colors, useThemeColors } from "../../theme/colors";
 
 // Botón del design system "Pitch Dark Kinetic".
 // - primary: fondo emerald, texto oscuro bold (CTA: "Submit Prediction").
@@ -36,6 +36,7 @@ export default function Button({
   iconPosition = "right",
   className = "",
 }) {
+  const colors = useThemeColors();
   const textColor = TEXT_COLOR[variant];
   // Glow esmeralda en el CTA primario (como el shadow del diseño).
   const glow =

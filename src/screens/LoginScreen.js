@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { dialog } from "../store/useDialog";
 import {
   View,
@@ -19,6 +20,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import { useHorizontalSwipe } from "../utils/useHorizontalSwipe";
 
 export default function LoginScreen({ navigation }) {
+  const { t } = useTranslation();
   const login = useAuthStore((s) => s.login);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,14 +28,14 @@ export default function LoginScreen({ navigation }) {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      dialog.alert("Ingresa tu correo y contraseña.", { title: "Faltan datos" });
+      dialog.alert(t("auth.missingCreds"), { title: t("auth.missingDataTitle") });
       return;
     }
     setLoading(true);
     try {
       await login(email.trim(), password);
     } catch (e) {
-      dialog.alert(e?.response?.data?.error || "No se pudo iniciar sesión.", { title: "Error", tone: "danger" });
+      dialog.alert(e?.response?.data?.error || t("auth.loginFailed"), { title: t("common.error"), tone: "danger" });
     } finally {
       setLoading(false);
     }
@@ -56,10 +58,10 @@ export default function LoginScreen({ navigation }) {
         <View className="items-center mb-8">
           <BrandLogo size={96} />
           <Typography variant="headline-lg" className="text-primary mt-4">
-            Polla Mundialista
+            {t("common.appName")}
           </Typography>
           <Typography variant="body" className="mt-1">
-            ¡Bienvenido de nuevo!
+            {t("auth.welcomeBack")}
           </Typography>
         </View>
 
@@ -75,8 +77,8 @@ export default function LoginScreen({ navigation }) {
           <IconInput
             variant="inset"
             icon={Mail}
-            label="Email"
-            placeholder="nombre@ejemplo.com"
+            label={t("auth.email")}
+            placeholder={t("auth.emailPlaceholder")}
             autoCapitalize="none"
             keyboardType="email-address"
             value={email}
@@ -84,10 +86,10 @@ export default function LoginScreen({ navigation }) {
           />
 
           <View className="flex-row items-center justify-between mt-4 mb-1.5 px-1">
-            <Typography variant="label-caps">Contraseña</Typography>
-            <TouchableOpacity onPress={() => dialog.alert("Recuperación de contraseña próximamente.", { title: "Próximamente" })} hitSlop={8}>
+            <Typography variant="label-caps">{t("auth.password")}</Typography>
+            <TouchableOpacity onPress={() => dialog.alert(t("auth.forgotPasswordMsg"), { title: t("common.comingSoon") })} hitSlop={8}>
               <Typography variant="label-caps" className="text-primary">
-                ¿Olvidaste la clave?
+                {t("auth.forgotPassword")}
               </Typography>
             </TouchableOpacity>
           </View>
@@ -102,16 +104,16 @@ export default function LoginScreen({ navigation }) {
 
           <Button
             className="mt-5"
-            title="Iniciar Sesión"
+            title={t("auth.signIn")}
             loading={loading}
             onPress={handleLogin}
           />
 
           <TouchableOpacity className="mt-6 items-center" onPress={goToRegister}>
             <Typography variant="body-sm">
-              ¿No tienes una cuenta?{" "}
+              {t("auth.noAccount")}{" "}
               <Typography variant="body-sm" className="text-primary">
-                Regístrate
+                {t("auth.register")}
               </Typography>
             </Typography>
           </TouchableOpacity>

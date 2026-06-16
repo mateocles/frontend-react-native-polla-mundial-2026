@@ -1,5 +1,8 @@
 /** @type {import('tailwindcss').Config} */
-// Design System: "Pitch Kinetic Dark"
+// Design System: "Pitch Kinetic" — tema dual (claro/oscuro).
+// Los colores leen variables CSS (canales RGB) aplicadas en runtime con
+// vars() según el tema activo — ver src/theme/themeVars.js y RootNavigator.
+const withVar = (name) => `rgb(var(${name}) / <alpha-value>)`;
 module.exports = {
   content: ["./App.{js,jsx,ts,tsx}", "./src/**/*.{js,jsx,ts,tsx}"],
   presets: [require("nativewind/preset")],
@@ -7,40 +10,40 @@ module.exports = {
     extend: {
       colors: {
         surface: {
-          DEFAULT: "#0b1326",
-          dim: "#0b1326",
-          bright: "#31394e",
-          "container-lowest": "#060d20",
-          "container-low": "#131b2e",
-          container: "#171f33",
-          "container-high": "#222a3e",
-          "container-highest": "#2d3449",
-          variant: "#2d3449",
+          DEFAULT: withVar("--surface"),
+          dim: withVar("--surface-dim"),
+          bright: withVar("--surface-bright"),
+          "container-lowest": withVar("--surface-container-lowest"),
+          "container-low": withVar("--surface-container-low"),
+          container: withVar("--surface-container"),
+          "container-high": withVar("--surface-container-high"),
+          "container-highest": withVar("--surface-container-highest"),
+          variant: withVar("--surface-variant"),
         },
-        background: "#0b1326",
-        "on-background": "#dbe2fd",
-        "on-surface": "#dbe2fd",
-        "on-surface-variant": "#b9cacb",
-        outline: "#849495",
-        "outline-variant": "#3a494b",
+        background: withVar("--background"),
+        "on-background": withVar("--on-background"),
+        "on-surface": withVar("--on-surface"),
+        "on-surface-variant": withVar("--on-surface-variant"),
+        outline: withVar("--outline"),
+        "outline-variant": withVar("--outline-variant"),
         primary: {
-          DEFAULT: "#00f2ff",
-          container: "#00f2ff",
+          DEFAULT: withVar("--primary"),
+          container: withVar("--primary-container"),
         },
-        "on-primary": "#00363a",
-        "on-primary-container": "#006a71",
+        "on-primary": withVar("--on-primary"),
+        "on-primary-container": withVar("--on-primary-container"),
         secondary: {
-          DEFAULT: "#d1bcff",
-          container: "#7000ff",
+          DEFAULT: withVar("--secondary"),
+          container: withVar("--secondary-container"),
         },
-        "on-secondary": "#3c0090",
-        tertiary: "#ffb4a2",
-        "on-tertiary": "#621100",
+        "on-secondary": withVar("--on-secondary"),
+        tertiary: withVar("--tertiary"),
+        "on-tertiary": withVar("--on-tertiary"),
         error: {
-          DEFAULT: "#ffb4ab",
-          container: "#93000a",
+          DEFAULT: withVar("--error"),
+          container: withVar("--error-container"),
         },
-        "on-error": "#690005",
+        "on-error": withVar("--on-error"),
       },
       fontFamily: {
         sans: ["Inter_400Regular"],

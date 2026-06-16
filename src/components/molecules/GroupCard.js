@@ -1,17 +1,20 @@
+import { useTranslation } from "react-i18next";
 import { View, TouchableOpacity, Alert } from "react-native";
 import { dialog } from "../../store/useDialog";
 import * as Clipboard from "expo-clipboard";
 import { Users, Copy, BarChart3 } from "lucide-react-native";
 import Typography from "../atoms/Typography";
 import Button from "../atoms/Button";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/colors";
 
 // Tarjeta de grupo (glass): nombre, participantes, rank, código (copiar) y
 // botón "Ver Ranking".
 export default function GroupCard({ group, onOpenRanking }) {
+  const colors = useThemeColors();
+  const { t } = useTranslation();
   const copyCode = async () => {
     await Clipboard.setStringAsync(group.inviteCode);
-    dialog.alert(`Código ${group.inviteCode} copiado al portapapeles.`, { title: "Copiado", tone: "success" });
+    dialog.alert(t("groups.codeCopied", { code: group.inviteCode }), { title: t("groups.copied"), tone: "success" });
   };
 
   return (
@@ -32,14 +35,14 @@ export default function GroupCard({ group, onOpenRanking }) {
           <View className="flex-row items-center">
             <Users color={colors.onSurfaceVariant} size={16} strokeWidth={2} />
             <Typography variant="body-sm" className="ml-1.5">
-              {group.memberCount ?? 0} participantes
+              {t("groups.participants", { count: group.memberCount ?? 0 })}
             </Typography>
           </View>
         </View>
         {group.myRank ? (
           <View className="bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
             <Typography variant="label-caps" className="text-primary">
-              Rank: #{group.myRank}
+              {t("groups.rank", { rank: group.myRank })}
             </Typography>
           </View>
         ) : null}
@@ -51,7 +54,7 @@ export default function GroupCard({ group, onOpenRanking }) {
         style={{ borderWidth: 1, borderColor: "rgba(255,255,255,0.05)" }}
       >
         <View>
-          <Typography variant="label-caps">Código de invitación</Typography>
+          <Typography variant="label-caps">{t("groups.inviteCode")}</Typography>
           <Typography
             className="text-primary mt-1"
             style={{ fontFamily: "Inter_700Bold", fontSize: 16, letterSpacing: 2 }}
@@ -67,7 +70,7 @@ export default function GroupCard({ group, onOpenRanking }) {
       {/* Ver Ranking */}
       <Button
         className="mt-4"
-        title="Ver Ranking"
+        title={t("groups.viewRanking")}
         icon={BarChart3}
         iconPosition="left"
         onPress={onOpenRanking}

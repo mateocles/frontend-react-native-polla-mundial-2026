@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Modal, View, FlatList, TouchableOpacity } from "react-native";
 import { X } from "lucide-react-native";
 import Avatar from "../atoms/Avatar";
@@ -6,7 +7,7 @@ import Typography from "../atoms/Typography";
 import EmptyState from "../atoms/EmptyState";
 import { PredictionService } from "../../api/services/predictionService";
 import { getTeamName, formatMatchShort, predictionOutcome } from "../../utils/match";
-import { colors } from "../../theme/colors";
+import { useThemeColors } from "../../theme/colors";
 
 const OUTCOME_CLASS = {
   primary: "text-primary",
@@ -16,6 +17,8 @@ const OUTCOME_CLASS = {
 
 // Modal con los pronósticos de otro usuario (solo partidos ya iniciados).
 export default function UserPredictionsModal({ user, groupId, onClose }) {
+  const colors = useThemeColors();
+  const { t } = useTranslation();
   const [data, setData] = useState(null);
 
   useEffect(() => {
@@ -41,7 +44,7 @@ export default function UserPredictionsModal({ user, groupId, onClose }) {
               <Typography variant="headline-md" numberOfLines={1}>
                 {user?.name}
               </Typography>
-              <Typography variant="label-caps">Pronósticos</Typography>
+              <Typography variant="label-caps">{t("groupDetail.predictions")}</Typography>
             </View>
             <TouchableOpacity onPress={onClose} hitSlop={8} className="ml-2">
               <X color={colors.onSurfaceVariant} size={22} />
@@ -54,7 +57,7 @@ export default function UserPredictionsModal({ user, groupId, onClose }) {
             showsVerticalScrollIndicator
             style={{ maxHeight: 360 }}
             ListEmptyComponent={
-              <EmptyState message={data ? "Sin pronósticos en partidos cerrados." : "Cargando…"} />
+              <EmptyState message={data ? t("groupDetail.noClosedPredictions") : t("common.loading")} />
             }
             renderItem={({ item: m }) => {
               const outcome = m.status === "finished" ? predictionOutcome(m.prediction) : null;
@@ -85,11 +88,11 @@ export default function UserPredictionsModal({ user, groupId, onClose }) {
                   {m.status === "finished" && (
                     <View className="flex-row items-center justify-between mt-2">
                       <Typography variant="body-sm">
-                        Real: {m.homeScore} - {m.awayScore}
+                        {t("groupDetail.real", { home: m.homeScore, away: m.awayScore })}
                       </Typography>
                       {outcome && (
                         <Typography variant="label-caps" className={OUTCOME_CLASS[outcome.tone]}>
-                          {outcome.label}
+                          {t(outcome.key)}
                         </Typography>
                       )}
                     </View>

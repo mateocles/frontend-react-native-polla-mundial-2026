@@ -1,20 +1,23 @@
 import { Modal, View, TouchableOpacity } from "react-native";
+import { useTranslation } from "react-i18next";
 import { AlertTriangle, CheckCircle2, Info } from "lucide-react-native";
 import Typography from "../atoms/Typography";
-import { colors } from "../../theme/colors";
-
-const TONES = {
-  default: { icon: Info, color: colors.primary, btn: colors.primary, btnText: colors.onPrimary },
-  danger: { icon: AlertTriangle, color: colors.error, btn: colors.error, btnText: "#690005" },
-  success: { icon: CheckCircle2, color: colors.primary, btn: colors.primary, btnText: colors.onPrimary },
-};
+import { useThemeColors } from "../../theme/colors";
 
 // Host global de diálogos. Montar una sola vez en App.
 import { useDialog } from "../../store/useDialog";
 
 export default function DialogHost() {
+  const { t } = useTranslation();
+  const colors = useThemeColors();
   const state = useDialog((s) => s.state);
   const close = useDialog((s) => s.close);
+
+  const TONES = {
+    default: { icon: Info, color: colors.primary, btn: colors.primary, btnText: colors.onPrimary },
+    danger: { icon: AlertTriangle, color: colors.error, btn: colors.error, btnText: colors.onError },
+    success: { icon: CheckCircle2, color: colors.primary, btn: colors.primary, btnText: colors.onPrimary },
+  };
 
   const tone = TONES[state?.tone] || TONES.default;
   const Icon = tone.icon;
@@ -46,7 +49,7 @@ export default function DialogHost() {
                 onPress={() => close(false)}
               >
                 <Typography variant="body" className="font-bold">
-                  {state?.cancelText || "Cancelar"}
+                  {state?.cancelText || t("common.cancel")}
                 </Typography>
               </TouchableOpacity>
             ) : null}
@@ -56,7 +59,7 @@ export default function DialogHost() {
               onPress={() => close(true)}
             >
               <Typography variant="body" style={{ color: tone.btnText, fontFamily: "Inter_700Bold" }}>
-                {state?.confirmText || (isConfirm ? "Confirmar" : "Aceptar")}
+                {state?.confirmText || (isConfirm ? t("common.confirm") : t("common.accept"))}
               </Typography>
             </TouchableOpacity>
           </View>

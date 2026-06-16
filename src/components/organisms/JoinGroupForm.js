@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { dialog } from "../../store/useDialog";
 import { View, Alert } from "react-native";
 import Card from "../atoms/Card";
@@ -8,6 +9,7 @@ import Button from "../atoms/Button";
 
 // Formulario para unirse a un grupo con código de invitación.
 export default function JoinGroupForm({ onJoin }) {
+  const { t } = useTranslation();
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -17,9 +19,9 @@ export default function JoinGroupForm({ onJoin }) {
     try {
       await onJoin(code.trim());
       setCode("");
-      dialog.alert("Te uniste al grupo.", { title: "Listo", tone: "success" });
+      dialog.alert(t("groups.joined"), { title: t("groups.joinedTitle"), tone: "success" });
     } catch (e) {
-      dialog.alert(e?.response?.data?.error || "Código inválido.", { title: "Error", tone: "danger" });
+      dialog.alert(e?.response?.data?.error || t("groups.invalidCode"), { title: t("common.error"), tone: "danger" });
     } finally {
       setBusy(false);
     }
@@ -28,18 +30,18 @@ export default function JoinGroupForm({ onJoin }) {
   return (
     <Card className="mb-4">
       <Typography variant="label-caps" className="mb-2">
-        Unirse con código
+        {t("groups.joinByCodeShort")}
       </Typography>
       <View className="flex-row">
         <Input
           className="flex-1 mr-2"
-          placeholder="Código de invitación"
+          placeholder={t("groups.codePlaceholder")}
           autoCapitalize="none"
           value={code}
           onChangeText={setCode}
         />
         <Button
-          title="Unirme"
+          title={t("groups.joinBtn")}
           variant="secondary"
           size="sm"
           loading={busy}

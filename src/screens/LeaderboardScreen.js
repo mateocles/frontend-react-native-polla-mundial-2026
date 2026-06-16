@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { dialog } from "../store/useDialog";
 import { View, FlatList, Image, TouchableOpacity, RefreshControl, Alert } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
@@ -20,14 +21,15 @@ import { useAuthStore } from "../store/useAuthStore";
 import { useMatchesStore } from "../store/useMatchesStore";
 import { useGroupsStore } from "../store/useGroupsStore";
 import { isMatchClosed } from "../utils/match";
-import { colors } from "../theme/colors";
-
-const TABS = [
-  { key: "ranking", label: "Ranking" },
-  { key: "predictions", label: "Mis Pronósticos" },
-];
+import { useThemeColors } from "../theme/colors";
 
 export default function LeaderboardScreen({ route, navigation }) {
+  const colors = useThemeColors();
+  const { t } = useTranslation();
+  const TABS = [
+    { key: "ranking", label: t("groupDetail.tabRanking") },
+    { key: "predictions", label: t("groupDetail.tabPredictions") },
+  ];
   const currentUser = useAuthStore((s) => s.user);
   const { matches, fetchMatches, submitPrediction } = useMatchesStore();
   const updateGroupStore = useGroupsStore((s) => s.updateGroup);
@@ -49,7 +51,7 @@ export default function LeaderboardScreen({ route, navigation }) {
       const data = await PredictionService.getLeaderboard(group.id);
       setRows(data);
     } catch (e) {
-      dialog.alert("No se pudo cargar la tabla.", { title: "Error", tone: "danger" });
+      dialog.alert(t("groupDetail.loadBoardFailed"), { title: t("common.error"), tone: "danger" });
     } finally {
       setLoading(false);
     }
@@ -86,7 +88,7 @@ export default function LeaderboardScreen({ route, navigation }) {
   const copyCode = async () => {
     if (!group.inviteCode) return;
     await Clipboard.setStringAsync(group.inviteCode);
-    dialog.alert(`Código ${group.inviteCode} copiado.`, { title: "Copiado", tone: "success" });
+    dialog.alert(t("groups.codeCopiedShort", { code: group.inviteCode }), { title: t("groups.copied"), tone: "success" });
   };
 
   const handleSaveGroup = async (payload) => {
@@ -120,7 +122,7 @@ export default function LeaderboardScreen({ route, navigation }) {
             style={{ backgroundColor: "rgba(11,19,38,0.7)", borderWidth: 1, borderColor: "rgba(0,242,255,0.2)" }}
           >
             <View className="mr-2">
-              <Typography variant="label-caps">Invite Code</Typography>
+              <Typography variant="label-caps">{t("groups.inviteCode")}</Typography>
               <Typography
                 className="text-primary"
                 style={{ fontFamily: "Inter_700Bold", fontSize: 14, letterSpacing: 1.5 }}
@@ -154,17 +156,17 @@ export default function LeaderboardScreen({ route, navigation }) {
 
       {tab === "ranking" ? (
         <View className="mt-6">
-          <Typography variant="headline-lg">Ranking de Jugadores</Typography>
+          <Typography variant="headline-lg">{t("groupDetail.rankingTitle")}</Typography>
           {rows.length ? <Podium rows={podium} onSelect={setViewUser} /> : null}
           <View className="h-4" />
         </View>
       ) : (
         <View className="mt-6">
-          <Typography variant="headline-lg">Mis Pronósticos</Typography>
+          <Typography variant="headline-lg">{t("groupDetail.myPredictions")}</Typography>
           <View className="flex-row mt-4 mb-2">
             {[
-              { key: "upcoming", label: "Próximos" },
-              { key: "finished", label: "Finalizados" },
+              { key: "upcoming", label: t("groupDetail.filterUpcoming") },
+              { key: "finished", label: t("groupDetail.filterFinished") },
             ].map((p) => {
               const active = predFilter === p.key;
               return (
@@ -239,7 +241,7 @@ export default function LeaderboardScreen({ route, navigation }) {
         }
         ListEmptyComponent={
           <EmptyState
-            message={tab === "ranking" ? "Aún no hay posiciones." : "No hay partidos para pronosticar."}
+            message={tab === "ranking" ? t("groupDetail.noPositions") : t("matches.noMatchesToPredict")}
           />
         }
       />
