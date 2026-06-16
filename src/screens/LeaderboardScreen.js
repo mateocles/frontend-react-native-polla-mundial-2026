@@ -112,6 +112,28 @@ export default function LeaderboardScreen({ route, navigation }) {
           colors={["transparent", "rgba(11,19,38,0.85)"]}
           style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
         />
+
+        {/* Código de invitación inmerso (esquina superior) */}
+        {group.inviteCode ? (
+          <View
+            className="absolute top-3 right-3 flex-row items-center rounded-lg px-3 py-2"
+            style={{ backgroundColor: "rgba(11,19,38,0.7)", borderWidth: 1, borderColor: "rgba(0,242,255,0.2)" }}
+          >
+            <View className="mr-2">
+              <Typography variant="label-caps">Invite Code</Typography>
+              <Typography
+                className="text-primary"
+                style={{ fontFamily: "Inter_700Bold", fontSize: 14, letterSpacing: 1.5 }}
+              >
+                {group.inviteCode}
+              </Typography>
+            </View>
+            <TouchableOpacity onPress={copyCode} className="w-8 h-8 rounded-md items-center justify-center bg-primary/10">
+              <Copy color={colors.primary} size={16} strokeWidth={2} />
+            </TouchableOpacity>
+          </View>
+        ) : null}
+
         <View className="p-4 flex-row items-end justify-between">
           <Typography variant="headline-lg" className="text-on-surface flex-1" numberOfLines={2}>
             {group.name}
@@ -126,27 +148,6 @@ export default function LeaderboardScreen({ route, navigation }) {
           ) : null}
         </View>
       </View>
-
-      {/* Código de invitación prominente */}
-      {group.inviteCode ? (
-        <View
-          className="rounded-xl p-4 mb-6 flex-row justify-between items-center"
-          style={{ backgroundColor: "rgba(30,41,59,0.7)", borderWidth: 1, borderColor: "rgba(0,242,255,0.2)" }}
-        >
-          <View>
-            <Typography variant="label-caps">Invite Code</Typography>
-            <Typography className="text-primary mt-0.5" style={{ fontFamily: "Inter_700Bold", fontSize: 20, letterSpacing: 2 }}>
-              {group.inviteCode}
-            </Typography>
-          </View>
-          <TouchableOpacity
-            onPress={copyCode}
-            className="w-12 h-12 rounded-lg items-center justify-center bg-primary/10"
-          >
-            <Copy color={colors.primary} size={22} strokeWidth={2} />
-          </TouchableOpacity>
-        </View>
-      ) : null}
 
       {/* Tabs */}
       <UnderlineTabs options={TABS} value={tab} onChange={setTab} />

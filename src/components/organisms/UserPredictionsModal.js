@@ -35,15 +35,15 @@ export default function UserPredictionsModal({ user, groupId, onClose }) {
           className="bg-surface-container rounded-t-2xl p-5"
           style={{ maxHeight: "80%", borderWidth: 1, borderColor: "rgba(255,255,255,0.06)" }}
         >
-          <View className="flex-row items-center justify-between mb-4">
-            <View className="flex-row items-center">
-              <Avatar name={user?.name} uri={user?.avatarUrl} size={40} />
-              <View className="ml-3">
-                <Typography variant="headline-md">{user?.name}</Typography>
-                <Typography variant="label-caps">Pronósticos</Typography>
-              </View>
+          <View className="flex-row items-center mb-4">
+            <Avatar name={user?.name} uri={user?.avatarUrl} size={40} />
+            <View className="ml-3 flex-1">
+              <Typography variant="headline-md" numberOfLines={1}>
+                {user?.name}
+              </Typography>
+              <Typography variant="label-caps">Pronósticos</Typography>
             </View>
-            <TouchableOpacity onPress={onClose} hitSlop={8}>
+            <TouchableOpacity onPress={onClose} hitSlop={8} className="ml-2">
               <X color={colors.onSurfaceVariant} size={22} />
             </TouchableOpacity>
           </View>
