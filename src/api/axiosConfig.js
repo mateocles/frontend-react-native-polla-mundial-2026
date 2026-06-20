@@ -2,6 +2,7 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ENV } from "../config/env";
 import { STORAGE_KEYS } from "../config/storageKeys";
+import { useAuthStore } from "../store/useAuthStore";
 
 const api = axios.create({
   baseURL: ENV.API_BASE_URL,
@@ -17,5 +18,19 @@ api.interceptors.request.use(async (config) => {
   }
   return config;
 });
+
+// Si el token expira o es inválido (401/403) cierra la sesión: el
+// RootNavigator muestra el AuthStack automáticamente al quedar token en null.
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error.response?.status;
+    const hadToken = !!useAuthStore.getState().token;
+    if (hadToken && (status === 401 || status === 403)) {
+      useAuthStore.getState().logout();
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default api;
